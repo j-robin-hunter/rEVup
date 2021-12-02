@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "412743057760",
+    "project_id": "revup-62c16",
+    "storage_bucket": "revup-62c16.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:412743057760:android:bb916e9b137e49acacde05",
+        "android_client_info": {
+          "package_name": "uk.co.romatech.revup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "412743057760-oq8lp0llgfeq9fcriggeisj6lmbl3vdq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzR8gQPdldAiqliz8E3mpIkKwLqTpdKTI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "412743057760-oq8lp0llgfeq9fcriggeisj6lmbl3vdq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

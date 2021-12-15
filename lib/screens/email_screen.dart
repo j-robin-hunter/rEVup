@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:revup/services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+class EmailScreen extends StatelessWidget {
+  const EmailScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
-    final TextEditingController passwordController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
 
     final authService = Provider.of<AuthService>(context);
 
@@ -23,24 +22,22 @@ class LoginScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
-              controller: passwordController,
+              controller: emailController,
               decoration: const InputDecoration(
-                labelText: 'Password',
+                labelText: 'email'
               ),
             ),
           ),
           ElevatedButton(
             onPressed: () async {
-              await authService.signInWithEmailAndPassword(arguments['email'], passwordController.text);
-              Navigator.popAndPushNamed(context, '/');
+              var isRegistered = await authService.isRegisteredUser(emailController.text);
+              if (isRegistered) {
+                Navigator.popAndPushNamed(context, '/login', arguments: {'email': emailController.text});
+              } else {
+                Navigator.popAndPushNamed(context, '/enquiry', arguments: {'email': emailController.text});
+              }
             },
-            child: const Text('Login'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/register');
-            },
-            child: const Text('Register'),
+            child: const Text('Next'),
           ),
         ],
       ),

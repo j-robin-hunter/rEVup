@@ -8,11 +8,19 @@ class AuthService {
     if (user == null) {
       return null;
     }
-    return User(uid: user.uid, email: user.email);
+    return User(uid: user.uid, email: user.email!);
   }
 
   Stream<User?>? get user {
     return _firebaseAuth.authStateChanges().map(_userFromFirebase);
+  }
+
+  Future<bool> isRegisteredUser(String email) async {
+    final List<String> methods = await _firebaseAuth.fetchSignInMethodsForEmail(email);
+    if (methods.isEmpty) {
+      return false;
+    }
+    return true;
   }
 
   Future<User?> signInWithEmailAndPassword(

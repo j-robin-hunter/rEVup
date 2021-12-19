@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import 'package:provider/provider.dart';
+import 'package:revup/models/cms_content.dart';
 import 'package:revup/services/firebase_firestore_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -37,10 +37,12 @@ class EnquiryFormState extends State<EnquiryForm> {
   String _title = 'Mr';
   int _currentStep = 0;
   final List _images = [];
+  Map<String, CmsContent> _cmsContent = {};
 
   @override
   Widget build(BuildContext context) {
     final firebaseFirestoreService = Provider.of<FirebaseFirestoreService>(context);
+    _cmsContent = Provider.of<Map<String, CmsContent>>(context);
 
     _email.text = widget.email;
 
@@ -49,68 +51,68 @@ class EnquiryFormState extends State<EnquiryForm> {
       child: Form(
         key: _enquiryFormKey,
         child: Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(primary: Color(0xFF84c1c1)),
-          ),
+          data: Theme.of(context).copyWith(colorScheme: const ColorScheme.light(primary: Color(0xFF84c1c1))),
           child: Stepper(
-              type: StepperType.horizontal,
-              steps: getSteps(),
-              currentStep: _currentStep,
-              onStepContinue: () {
-                if (_enquiryFormKey.currentState!.validate()) {
-                  final isLastStep = _currentStep == getSteps().length - 1;
-                  if (isLastStep) {
-                    firebaseFirestoreService.createEnquiry({
-                      'name': {
-                        'title': _title,
-                        'firstName': _firstName.text,
-                        'lastName': _lastName.text,
-                      },
-                      'email': _email.text,
-                      'address': {
-                        'streetAddressOne': _streetAddressOne.text,
-                        'streetAddressTwo': _streetAddressTwo.text,
-                        'city': _city.text,
-                        'county': _county.text,
-                        'postcode': _postcode.text,
-                        'country': 'United Kingdom',
-                      },
-                      'phone': _phone.text,
-                    });
-                  } else {
-                    setState(() => _currentStep += 1);
-                  }
-                }
-              },
-              onStepCancel: _currentStep == 0 ? null : () => setState(() => _currentStep -= 1),
-              onStepTapped: (step) {
-                if (_enquiryFormKey.currentState!.validate()) {
-                  setState(() => _currentStep = step);
-                }
-              },
-              controlsBuilder: (context, {onStepContinue, onStepCancel}) {
+            type: StepperType.horizontal,
+            steps: getSteps(),
+            currentStep: _currentStep,
+            onStepContinue: () {
+              if (_enquiryFormKey.currentState!.validate()) {
                 final isLastStep = _currentStep == getSteps().length - 1;
-                return Container(
-                  margin: const EdgeInsets.only(top: 50),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: ElevatedButton(
+                if (isLastStep) {
+                  firebaseFirestoreService.createEnquiry({
+                    'name': {
+                      'title': _title,
+                      'firstName': _firstName.text,
+                      'lastName': _lastName.text,
+                    },
+                    'email': _email.text,
+                    'address': {
+                      'streetAddressOne': _streetAddressOne.text,
+                      'streetAddressTwo': _streetAddressTwo.text,
+                      'city': _city.text,
+                      'county': _county.text,
+                      'postcode': _postcode.text,
+                      'country': 'United Kingdom',
+                    },
+                    'phone': _phone.text,
+                  });
+                } else {
+                  setState(() => _currentStep += 1);
+                }
+              }
+            },
+            onStepCancel: _currentStep == 0 ? null : () => setState(() => _currentStep -= 1),
+            onStepTapped: (step) {
+              if (_enquiryFormKey.currentState!.validate()) {
+                setState(() => _currentStep = step);
+              }
+            },
+            controlsBuilder: (context, {onStepContinue, onStepCancel}) {
+              final isLastStep = _currentStep == getSteps().length - 1;
+              return Container(
+                margin: const EdgeInsets.only(top: 50),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton(
                         child: Text(isLastStep ? 'Confirm' : 'Next'),
                         onPressed: onStepContinue,
-                      )),
-                      const SizedBox(width: 12),
-                      if (_currentStep != 0)
-                        Expanded(
-                          child: ElevatedButton(
-                            child: const Text('Back'),
-                            onPressed: onStepCancel,
-                          ),
-                        )
-                    ],
-                  ),
-                );
-              }),
+                      )
+                    ),
+                    const SizedBox(width: 12),
+                    if (_currentStep != 0)
+                      Expanded(
+                        child: ElevatedButton(
+                          child: const Text('Back'),
+                          onPressed: onStepCancel,
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -347,22 +349,22 @@ class EnquiryFormState extends State<EnquiryForm> {
   }
 
   Widget get _imageOne {
-    return Column(
+    return Flex(
+      direction: Axis.vertical,
       children: <Widget>[
-        SizedBox(
-          height: 300,
-          child: PhotoViewGallery.builder(
-            itemCount: _images.length,
-            builder: (BuildContext context, int index) {
-              final _image = _images[index];
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(_image),
-                tightMode: true,
-              );
-            },
-            backgroundDecoration: const BoxDecoration(color: Colors.transparent),
-          ),
-        ),
+        _images.isEmpty
+            ? _imageAndTextRow('form 1')
+            : GridView.builder(
+                itemCount: _images.length,
+                itemBuilder: (context, index) {
+                  final _image = _images[index];
+                  return Image(image: _image);
+                },
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                ),
+              ),
         Row(
           children: <Widget>[
             IconButton(
@@ -414,5 +416,14 @@ class EnquiryFormState extends State<EnquiryForm> {
         _images.add(File(image.path));
       }
     });
+  }
+
+  Widget _imageAndTextRow(String contentName) {
+    return Row(
+      children: <Widget>[
+        Image.network(_cmsContent[contentName]!.mediaContent, width: 100,),
+        Text(_cmsContent[contentName]!.textContent),
+      ],
+    );
   }
 }

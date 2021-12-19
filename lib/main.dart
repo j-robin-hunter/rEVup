@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:revup/models/cms_content.dart';
 import 'package:revup/screens/email_screen.dart';
 import 'package:revup/screens/enquiry_screen.dart';
 import 'package:revup/screens/login_screen.dart';
 import 'package:revup/screens/register_screen.dart';
 import 'package:revup/services/auth_service.dart';
+import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/firebase_firestore_service.dart';
-import 'package:revup/widgets/firebase_initialize.dart';
+import 'package:revup/widgets/auth_wrapper.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _cmsService = CmsService();
+
     return MultiProvider(
       providers: [
         Provider<AuthService>(
@@ -37,6 +41,10 @@ class MyApp extends StatelessWidget {
         ),
         Provider<FirebaseFirestoreService>(
           create: (_) => FirebaseFirestoreService(),
+        ),
+        FutureProvider<Map<String, CmsContent>>(
+            create: (_) => _cmsService.cmsContent(),
+            initialData: const {},
         ),
       ],
       child: MaterialApp(
@@ -54,7 +62,7 @@ class MyApp extends StatelessWidget {
           ],
           initialRoute: '/',
           routes: {
-            '/': (context) => FirebaseInitialize(),
+            '/': (context) => const AuthWrapper(),
             '/email': (context) => const EmailScreen(),
             '/login': (context) => const LoginScreen(),
             '/register': (context) => const RegisterScreen(),

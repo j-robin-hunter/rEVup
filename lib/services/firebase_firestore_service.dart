@@ -10,9 +10,7 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<Lead>> get enquiries {
-    return _getEnquiries()
-      .snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => Lead.fromMap(doc.data())).toList());
+    return _getEnquiries().snapshots().map((snapshot) => snapshot.docs.map((doc) => Lead.fromMap(doc.data())).toList());
   }
 
   void createEnquiry(Map<String, dynamic> lead) {
@@ -20,8 +18,9 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<Install>> get installs {
-    return _firebaseFirestore.collection('installs')
-      .snapshots().map((snapshot) =>
-        snapshot.docs.map((doc) => Install(who: doc.data()['who'])).toList());
+    return _firebaseFirestore
+        .collection('installs')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => Install(who: doc.data()['who'])).toList());
   }
 }

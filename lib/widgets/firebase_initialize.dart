@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:revup/widgets/auth_wrapper.dart';
 
 class FirebaseInitialize extends StatelessWidget {
@@ -10,6 +11,12 @@ class FirebaseInitialize extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return FutureProvider(
+      create: (context) => _firebaseApp,
+      initialData: null,
+      child: const AuthWrapper(),
+    );
+    /*
     return FutureBuilder(
       future: _firebaseApp,
       builder: (context, snapshot) {
@@ -25,5 +32,7 @@ class FirebaseInitialize extends StatelessWidget {
         }
       },
     );
+
+     */
   }
 }

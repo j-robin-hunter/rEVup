@@ -88,7 +88,7 @@ class EnquiryFormState extends State<EnquiryForm> {
                 setState(() => _currentStep = step);
               }
             },
-            controlsBuilder: (context, {onStepContinue, onStepCancel}) {
+            controlsBuilder: (BuildContext context, ControlsDetails details) {
               final isLastStep = _currentStep == getSteps().length - 1;
               return Container(
                 margin: const EdgeInsets.only(top: 50),
@@ -96,18 +96,18 @@ class EnquiryFormState extends State<EnquiryForm> {
                   children: <Widget>[
                     Expanded(
                       child: ElevatedButton(
+                        onPressed: details.onStepContinue,
                         child: Text(isLastStep ? 'Confirm' : 'Next'),
-                        onPressed: onStepContinue,
-                      )
+                      ),
                     ),
                     const SizedBox(width: 12),
                     if (_currentStep != 0)
                       Expanded(
                         child: ElevatedButton(
+                          onPressed: details.onStepCancel,
                           child: const Text('Back'),
-                          onPressed: onStepCancel,
                         ),
-                      ),
+                      )
                   ],
                 ),
               );
@@ -119,45 +119,46 @@ class EnquiryFormState extends State<EnquiryForm> {
   }
 
   List<Step> getSteps() => [
-        Step(
-          state: _currentStep > 0 ? StepState.complete : StepState.indexed,
-          isActive: _currentStep >= 0,
-          title: const Text('Data Privacy'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _privacyStatement,
-            ],
-          ),
-        ),
-        Step(
-          state: _currentStep > 1 ? StepState.complete : StepState.indexed,
-          isActive: _currentStep >= 1,
-          title: const Text('Your Details'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _nameFields,
-              _emailField,
-              _streetAddressOneField,
-              _streetAddressTwoField,
-              _cityField,
-              _countyField,
-              _postcodeField,
-              _phoneField,
-            ],
-          ),
-        ),
-        Step(
-          isActive: _currentStep >= 2,
-          title: const Text('Installation Details'),
-          content: Column(
-            children: <Widget>[
-              _imageOne,
-            ],
-          ),
-        ),
-      ];
+    Step(
+      state: _currentStep > 0 ? StepState.complete : StepState.indexed,
+      isActive: _currentStep >= 0,
+      title: const Text('Data Privacy'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _privacyStatement,
+        ],
+      ),
+    ),
+    Step(
+      state: _currentStep > 1 ? StepState.complete : StepState.indexed,
+      isActive: _currentStep >= 1,
+      title: const Text('Your Details'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _nameFields,
+          _emailField,
+          _streetAddressOneField,
+          _streetAddressTwoField,
+          _cityField,
+          _countyField,
+          _postcodeField,
+          _phoneField,
+        ],
+      ),
+    ),
+    Step(
+      isActive: _currentStep >= 2,
+      title: const Text('Installation Details'),
+      content: Column(
+        children: <Widget>[
+          _imageOne,
+          _imageOne,
+        ],
+      ),
+    ),
+  ];
 
   //
   // WIDGETS
@@ -349,30 +350,41 @@ class EnquiryFormState extends State<EnquiryForm> {
   }
 
   Widget get _imageOne {
+    final w = (MediaQuery.of(context).size.width - 4 * (4 - 1)) / 4;
     return Flex(
       direction: Axis.vertical,
       children: <Widget>[
         _images.isEmpty
             ? _imageAndTextRow('form 1')
+            : SingleChildScrollView(
+                child: Wrap(
+                  runSpacing: 4,
+                  spacing: 4,
+                  alignment: WrapAlignment.center,
+                  children: List.generate(_images.length, (index) => _gridImage(index, w)),
+                ),
+            ),
+        /*
             : GridView.builder(
                 itemCount: _images.length,
                 itemBuilder: (context, index) {
-                  final _image = _images[index];
-                  return Image(image: _image);
+                  return _gridImage(index);
                 },
                 shrinkWrap: true,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 3,
                 ),
               ),
+        */
         Row(
           children: <Widget>[
-            IconButton(
-              onPressed: () {
-                getPhoto(ImageSource.camera);
-              },
-              icon: const Icon(Icons.camera),
-            ),
+            if (!kIsWeb)
+              IconButton(
+                onPressed: () {
+                  getPhoto(ImageSource.camera);
+                },
+                icon: const Icon(Icons.camera),
+              ),
             IconButton(
               onPressed: () {
                 getPhoto(ImageSource.gallery);
@@ -411,9 +423,9 @@ class EnquiryFormState extends State<EnquiryForm> {
     if (image == null) return;
     setState(() {
       if (kIsWeb) {
-        _images.add(image.path);
+        _images.add({'path': image.path});
       } else {
-        _images.add(File(image.path));
+        _images.add({'path': File(image.path)});
       }
     });
   }
@@ -423,6 +435,31 @@ class EnquiryFormState extends State<EnquiryForm> {
       children: <Widget>[
         Image.network(_cmsContent[contentName]!.mediaContent, width: 100,),
         Text(_cmsContent[contentName]!.textContent),
+      ],
+    );
+  }
+
+  Widget _gridImage(int index, double w) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          height: 150,
+          width: w,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: NetworkImage(_images[index]['path']),
+              fit: BoxFit.fitHeight
+            ),
+            border: Border.all(
+              color: Colors.transparent,
+              width: 16,
+            ),
+          ),
+        ),
+        IconButton(
+          onPressed: () => setState(() => _images.removeAt(index)),
+          icon: const Icon(Icons.delete),
+        ),
       ],
     );
   }

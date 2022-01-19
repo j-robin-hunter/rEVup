@@ -19,8 +19,10 @@ class CmsService {
           for (var i = 0; i < jsonResponse['total']; i++) {
             CmsContent cmsContent = CmsContent(
                 jsonResponse['items'][i]['fields']['contentName'],
+                jsonResponse['items'][i]['fields']['title'],
                 jsonResponse['items'][i]['fields']['textContent'],
-                'https:${jsonResponse['includes']['Asset'][i]['fields']['file']['url']}');
+                'https:${jsonResponse['includes']['Asset'][i]['fields']['file']['url']}',
+                jsonResponse['items'][i]['fields']['test']);
             _cmsContent[cmsContent.contentName] = cmsContent;
           }
         } catch (ex) {

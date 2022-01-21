@@ -1,4 +1,3 @@
-import 'package:contentful_rich_text/contentful_rich_text.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,7 +15,6 @@ import 'package:url_launcher/url_launcher.dart';
 enum WhomType { individual, business }
 
 class EnquiryForm extends StatefulWidget {
-
   const EnquiryForm({Key? key}) : super(key: key);
 
   @override
@@ -96,25 +94,28 @@ class EnquiryFormState extends State<EnquiryForm> {
     return _isCompleted
         ? const Text('all done now')
         : Center(
-            child: SizedBox(
-              width: 1200,
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
-                child: Stepper(
-                  type: MediaQuery.of(context).size.width > 600 ? StepperType.horizontal : StepperType.vertical,
-                  steps: getSteps(),
-                  currentStep: _currentStep,
-                  onStepContinue: () {
-                    if (_formKeys[_currentStep].currentState!.validate()) {
-                      final isLastStep = _currentStep == getSteps().length - 1;
-                      if (isLastStep) {
-                        setState(() => _isCompleted = true);
-                        _allImages.forEach((key, images) {
-                          for (var image in images) {
-                            firebaseStorageService.uploadXfileImage('enquiry', _email.text, image);
-                          }
-                        });
-                        /*
+            child: Container(
+              constraints: const BoxConstraints(
+                minWidth: 400,
+                maxWidth: 1200,
+                maxHeight: 550.0,
+              ),
+              margin: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              child: Stepper(
+                type: MediaQuery.of(context).size.width > 600 ? StepperType.horizontal : StepperType.vertical,
+                steps: getSteps(),
+                currentStep: _currentStep,
+                onStepContinue: () {
+                  if (_formKeys[_currentStep].currentState!.validate()) {
+                    final isLastStep = _currentStep == getSteps().length - 1;
+                    if (isLastStep) {
+                      setState(() => _isCompleted = true);
+                      _allImages.forEach((key, images) {
+                        for (var image in images) {
+                          firebaseStorageService.uploadXfileImage('enquiry', _email.text, image);
+                        }
+                      });
+                      /*
                   firebaseFirestoreService.createEnquiry({
                     'name': {
                       'title': _title,
@@ -134,42 +135,41 @@ class EnquiryFormState extends State<EnquiryForm> {
                   });
 
                    */
-                      } else {
-                        setState(() => _currentStep += 1);
-                      }
+                    } else {
+                      setState(() => _currentStep += 1);
                     }
-                  },
-                  onStepCancel: _currentStep == 0 ? null : () => setState(() => _currentStep -= 1),
-                  onStepTapped: (step) {
-                    if (_formKeys[_currentStep].currentState!.validate()) {
-                      setState(() => _currentStep = step);
-                    }
-                  },
-                  controlsBuilder: (BuildContext context, ControlsDetails details) {
-                    final isLastStep = _currentStep == getSteps().length - 1;
-                    return Container(
-                      margin: const EdgeInsets.only(top: 50),
-                      child: Row(
-                        children: <Widget>[
+                  }
+                },
+                onStepCancel: _currentStep == 0 ? null : () => setState(() => _currentStep -= 1),
+                onStepTapped: (step) {
+                  if (_formKeys[_currentStep].currentState!.validate()) {
+                    setState(() => _currentStep = step);
+                  }
+                },
+                controlsBuilder: (BuildContext context, ControlsDetails details) {
+                  final isLastStep = _currentStep == getSteps().length - 1;
+                  return Container(
+                    margin: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: details.onStepContinue,
+                            child: Text(isLastStep ? 'Confirm' : 'Next'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        if (_currentStep != 0)
                           Expanded(
                             child: ElevatedButton(
-                              onPressed: details.onStepContinue,
-                              child: Text(isLastStep ? 'Confirm' : 'Next'),
+                              onPressed: details.onStepCancel,
+                              child: const Text('Back'),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          if (_currentStep != 0)
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: details.onStepCancel,
-                                child: const Text('Back'),
-                              ),
-                            )
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                          )
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           );
@@ -190,7 +190,7 @@ class EnquiryFormState extends State<EnquiryForm> {
                 _solutions,
                 const SizedBox(height: 10),
                 _privacyStatement,
-                ContentfulRichText(cmsContent['form 3']!.test).documentToWidgetTree
+                //ContentfulRichText(cmsContent['form 3']!.test).documentToWidgetTree
               ],
             ),
           ),
@@ -296,7 +296,7 @@ class EnquiryFormState extends State<EnquiryForm> {
               children: <Widget>[
                 const Text('We need to get some details so we can work out a route for the installation'),
                 const SizedBox(height: 30),
-                if (_productsAndServices.contains('Electric Vehicle Charging'))_imagesField('form 1', 2, height: _screenWidth > 600 ? 80 : 75),
+                if (_productsAndServices.contains('Electric Vehicle Charging')) _imagesField('form 1', 2, height: _screenWidth > 600 ? 80 : 75),
                 _imagesField('form 2', 1, height: _screenWidth > 600 ? 80 : 75, maxImages: 2),
                 _imagesField('form 3', 1, height: _screenWidth > 600 ? 80 : 75),
               ],

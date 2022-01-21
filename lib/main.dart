@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,16 +21,20 @@ Future<void> main() async {
   setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-        apiKey: "AIzaSyBRjosGKaOhYmxCC8uM48u1UVz2KRDQeeQ",
-        authDomain: "revup-62c16.firebaseapp.com",
-        projectId: "revup-62c16",
-        storageBucket: "revup-62c16.appspot.com",
-        messagingSenderId: "412743057760",
-        appId: "1:412743057760:web:bc4f1dcbc667de70acde05",
-        measurementId: "G-G87WF5F2ZL"),
-  );
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+          apiKey: "AIzaSyBRjosGKaOhYmxCC8uM48u1UVz2KRDQeeQ",
+          authDomain: "revup-62c16.firebaseapp.com",
+          projectId: "revup-62c16",
+          storageBucket: "revup-62c16.appspot.com",
+          messagingSenderId: "412743057760",
+          appId: "1:412743057760:web:bc4f1dcbc667de70acde05",
+          measurementId: "G-G87WF5F2ZL"),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
 
   runApp(const MyApp());
 }
@@ -77,6 +82,7 @@ class MyAppState extends State<MyApp> {
           secondaryHeaderColor: Color(veryDarkGrey),
           unselectedWidgetColor: Color(greenSheen),
           highlightColor: Color(midGrey),
+          bottomAppBarColor: Color(midGrey),
           appBarTheme: AppBarTheme(backgroundColor: Color(airSuperiorityBlue), foregroundColor: Colors.white),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ButtonStyle(

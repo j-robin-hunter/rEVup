@@ -1,144 +1,108 @@
-import 'package:firebase_auth/firebase_auth.dart';
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:revup/classes/validators.dart';
-import 'package:revup/extensions/string_casing_extension.dart';
 import 'package:revup/services/auth_service.dart';
-import 'package:revup/widgets/error_dialog.dart';
+import 'package:revup/widgets/future_dialog.dart';
 import 'package:revup/widgets/padded_password_form_field.dart';
 import 'package:revup/widgets/padded_text_form_field.dart';
 
-class RegisterForm extends StatefulWidget {
+class RegisterForm extends StatelessWidget {
   const RegisterForm({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return RegisterFormState();
-  }
-}
-
-class RegisterFormState extends State<RegisterForm> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  final _name = TextEditingController();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-
-  late FocusNode _focusNode;
-
-  @override
-  void initState() {
-    super.initState();
-    _name.addListener(() => _name.value = _name.value.copyWith(text: _name.text.toLowerCase().toTitleCase()));
-    _focusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    _name.dispose();
-    _email.dispose();
-    _password.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    AuthService _authService = Provider.of<AuthService>(context);
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final AuthService _authService = Provider.of<AuthService>(context);
+
+    final _email = TextEditingController();
+    final _password = TextEditingController();
 
     return Form(
       key: _formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          PaddedTextFormField(
-            controller: _name,
-            validator: Validators.validateNotEmpty,
-            labelText: 'Your name',
-            floatingLabelBehavior: FloatingLabelBehavior.never,
-            icon: const Icon(Icons.person),
-            focusNode: _focusNode,
+          const Padding(
+            padding: EdgeInsets.only(bottom: 15.0),
+            child: Text(
+              'Create account',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18.0,
+              ),
+            ),
           ),
           PaddedTextFormField(
             controller: _email,
             validator: Validators.validateEmail,
             labelText: 'Email',
             floatingLabelBehavior: FloatingLabelBehavior.never,
-            icon: const Icon(Icons.email),
           ),
           PaddedPasswordFormField(
             controller: _password,
             labelText: 'Password',
             floatingLabelBehavior: FloatingLabelBehavior.never,
-            icon: const Icon(Icons.lock),
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 36.0,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  showDialog(
+                    barrierDismissible: false,
+                    context: context,
+                    builder: (BuildContext context) {
+                      return FutureDialog(
+                        height: 140.0,
+                        future: _authService.createUserWithEmailAndPassword(_email.text, _password.text),
+                        waitingString: 'Creating user ...',
+                        hasDataTitle: 'User Created',
+                        hasDataString:
+                            'A new account has been created. It will need to be verified before it can be used. A verification email has been sent to ${_email.text}.',
+                        hasDataActions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pushNamed(context, '/'),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                        hasErrorTitle: 'Unable to Create User',
+                        hasErrorActions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      ); //_createdDialog(context, _email.text, _password.text);
+                    },
+                  );
+                }
+              },
+              child: const Text('Create account'),
+            ),
           ),
           const Padding(
-            padding: EdgeInsets.only(bottom: 10.0),
+            padding: EdgeInsets.only(top: 12.0),
             child: Text(
               'Password must be at least 8 characters in length, contain at least: one uppercase letter, one lowercase letter, one number and one special character',
               style: TextStyle(
                 color: Colors.white,
                 fontStyle: FontStyle.italic,
-                fontSize: 10.0,
+                fontSize: 14.0,
               ),
-            ),
-          ),
-          SizedBox(
-            width: double.infinity,
-            height: 40.0,
-            child: ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  try {
-                    User? user = await _authService.createUserWithEmailAndPassword(_email.text, _password.text);
-                    await _authService.updateUserDisplayName(user!, _name.text);
-                    showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return _createdDialog(context);
-                      },
-                    );
-                  } catch (e) {
-                    showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return ErrorDialog(error: e.toString());
-                      },
-                    );
-                  }
-                }
-              },
-              child: const Text('Sign up'),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _createdDialog(BuildContext context) {
-    return AlertDialog(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(3.0)),
-      ),
-      contentPadding: const EdgeInsets.fromLTRB(25.0, 20.0, 25.0, 20.0),
-      content: const SizedBox(
-        width: 400.0,
-        height: 60.0,
-        child: Center(
-          child: Text('Your account has been created but will need to be verified before you will be able to login. A verification email has been sent to you.'),
-        ),
-      ),
-      actions: <Widget>[
-        TextButton(
-          child: const Text('OK'),
-          onPressed: () {
-            Navigator.pushNamed(context, '/');
-          },
-        ),
-      ],
     );
   }
 }

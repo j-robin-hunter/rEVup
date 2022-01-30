@@ -1,3 +1,10 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -56,7 +63,7 @@ class AuthService extends ChangeNotifier {
       await _firebaseAuth.signInWithCredential(googleCredential);
     } catch (e) {
       // TODO
-      print(e);
+      print('Error signInWithGoogle $e');
     }
     notifyListeners();
   }
@@ -65,10 +72,16 @@ class AuthService extends ChangeNotifier {
     _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
-  Future<void> updateUserEmail(User user, String email, String password) async {
-    await signInWithEmailAndPassword(user.email!, password, false);
-    await user.updateEmail(email);
-    notifyListeners();
+  Future<void> updateUserEmail(String email, String password) async {
+    try {
+      List users = await user;
+      await signInWithEmailAndPassword(users[0].email!, password, false);
+      await users[0].updateEmail(email);
+      await verifyEmailAddress(users[0]);
+      notifyListeners();
+    } catch(e) {
+      throw Exception('Unable to determine current user');
+    }
   }
 
   Future<void> updateUserDisplayName(User user, String name) async {

@@ -1,99 +1,59 @@
-import 'package:flutter/material.dart';
-import 'package:revup/forms/register_form.dart';
-import 'package:revup/widgets/copyright.dart';
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
 
-class RegisterScreen extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:revup/widgets/page_template.dart';
+import 'package:revup/forms/register_form.dart';
+
+class RegisterScreen extends StatelessWidget {
   const RegisterScreen({Key? key}) : super(key: key);
 
-  @override
-  State<StatefulWidget> createState() {
-    return RegisterScreenState();
-  }
-}
 
-class RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              height: 110.0,
-              color: Theme.of(context).appBarTheme.backgroundColor,
+        child: PageTemplate(
+          body: _registerScreenBody(),
+          topImage: false,
+        ),
+      ),
+    );
+  }
+
+  Widget _registerScreenBody() {
+    return Card(
+      elevation: 10,
+      child: Container(
+        height: 400.0,
+        constraints: const BoxConstraints(
+          minWidth: 400,
+          maxWidth: 800,
+        ),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(3.0),
+          ),
+          image: DecorationImage(
+            image: AssetImage('lib/assets/images/earth.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        alignment: Alignment.centerLeft,
+        // align your child's position.
+        child: const Padding(
+          padding: EdgeInsets.only(left: 50.0),
+          child: SizedBox(
+            width: 294.0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              child: RegisterForm(),
             ),
-            Positioned(
-              left: 0,
-              top: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: SizedBox(
-                  width: 150.0,
-                  height: 86.0,
-                  child: Image.asset('lib/assets/images/logo-rev-230x132.png'),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 35.0,
-              right: 10.0,
-              child: SizedBox(
-                height: 35.0,
-                child: IconButton(
-                  mouseCursor: SystemMouseCursors.click,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                ),
-              ),
-            ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                ),
-                child: Card(
-                  elevation: 10,
-                  child: Container(
-                    height: 400.0,
-                    constraints: const BoxConstraints(
-                      minWidth: 400,
-                      maxWidth: 800,
-                    ),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(3.0),
-                      ),
-                      image: DecorationImage(
-                        image: AssetImage('lib/assets/images/earth.png'),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    alignment: Alignment.centerLeft,
-                    // align your child's position.
-                    child: const Padding(
-                      padding: EdgeInsets.only(left: 50.0),
-                      child: SizedBox(
-                        width: 294.0,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12.0),
-                          child: RegisterForm(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const Positioned(
-              left: 0,
-              bottom: 0,
-              right: 0,
-              child: Copyright(),
-            ),
-          ],
+          ),
         ),
       ),
     );

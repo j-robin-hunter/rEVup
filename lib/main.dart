@@ -1,3 +1,10 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,13 +14,15 @@ import 'package:revup/models/cms_content.dart';
 import 'package:revup/screens/enquiry_screen.dart';
 import 'package:revup/screens/home_screen.dart';
 import 'package:revup/screens/login_screen.dart';
-import 'package:revup/screens/profile_screen.dart';
+import 'package:revup/screens/quote_screen.dart';
+import 'package:revup/screens/setup_screen.dart';
 import 'package:revup/screens/register_screen.dart';
 import 'package:revup/services/auth_service.dart';
+import 'package:revup/services/environment_service.dart';
+import 'package:revup/services/license_service.dart';
 import 'package:revup/services/cms_service.dart';
-import 'package:revup/services/firebase_firestore_service.dart';
 import 'package:revup/services/firebase_storage_service.dart';
-import 'package:revup/services/shared_preferences_service.dart';
+import 'package:revup/services/profile_service.dart';
 import 'classes/create_material_color.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -61,8 +70,8 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(),
         ),
-        Provider<FirebaseFirestoreService>(
-          create: (_) => FirebaseFirestoreService(),
+        ChangeNotifierProvider<ProfileService>(
+          create: (_) => ProfileService(),
         ),
         Provider<FirebaseStorageService>(
           create: (_) => FirebaseStorageService(),
@@ -71,8 +80,11 @@ class MyAppState extends State<MyApp> {
           create: (_) => CmsService().cmsContent(),
           initialData: const {},
         ),
-        Provider<SharedPreferencesService>(
-          create: (_) => SharedPreferencesService(),
+        Provider<LicenseService>(
+          create: (_) => LicenseService(),
+        ),
+        Provider<EnvironmentService>(
+          create: (_) => EnvironmentService(),
         ),
       ],
       child: MaterialApp(
@@ -89,13 +101,16 @@ class MyAppState extends State<MyApp> {
               foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
             ),
           ),
-          floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: Color(0xff84c1c1),
+          floatingActionButtonTheme: FloatingActionButtonThemeData(
+            backgroundColor: Color(greenSheen),
             foregroundColor: Colors.white,
           ),
           inputDecorationTheme: InputDecorationTheme(
             isDense: true,
             labelStyle: const TextStyle(
+              color: Colors.black26,
+            ),
+            hintStyle: const TextStyle(
               color: Colors.black26,
             ),
             floatingLabelBehavior: FloatingLabelBehavior.auto,
@@ -147,8 +162,9 @@ class MyAppState extends State<MyApp> {
           '/': (context) => const HomeScreen(),
           '/login': (context) => const LoginScreen(),
           '/enquiry': (context) => const EnquiryScreen(),
+          '/quote': (context) =>const QuoteScreen(),
           '/register': (context) => const RegisterScreen(),
-          '/profile': (context) => const ProfileScreen(),
+          '/setup': (context) => const SetupScreen(),
         },
       ),
     );

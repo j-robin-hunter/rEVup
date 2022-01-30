@@ -1,3 +1,10 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -43,81 +50,111 @@ class LoginFormState extends State<LoginForm> {
   @override
   Widget build(BuildContext context) {
     AuthService _authService = Provider.of<AuthService>(context);
-
     return Form(
       key: _formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text(
+                  'Sign in',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18.0,
+                  ),
+                ),
+                Row(
+                  children: <Widget>[
+                    const Text(
+                      'or',
+                      style: TextStyle(
+                        color: Colors.white,
+                        //fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: Text(
+                        'create account',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          //fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: SizedBox(
+              height: 36.0,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await _authService.signInWithGoogle(_rememberMe);
+                  Navigator.pop(context);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const <Widget>[
+                    FaIcon(FontAwesomeIcons.google, size: 16.0),
+                    Text('Sign in with Google'),
+                    SizedBox.shrink(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: SizedBox(
+              height: 36.0,
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () async {
+                  await _authService.signInWithGoogle(_rememberMe);
+                  Navigator.pop(context);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const <Widget>[
+                    FaIcon(FontAwesomeIcons.facebookF, size: 16.0),
+                    Text('Sign in with Facebook'),
+                    SizedBox.shrink(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(bottom: 10.0),
+            child: Text(
+              'or',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ),
           PaddedTextFormField(
             controller: _email,
             validator: Validators.validateEmail,
             labelText: 'Email',
             floatingLabelBehavior: FloatingLabelBehavior.never,
-            icon: const Icon(Icons.email),
             focusNode: _focusNode,
           ),
           PaddedPasswordFormField(
             controller: _password,
             labelText: 'Password',
             floatingLabelBehavior: FloatingLabelBehavior.never,
-            icon: const Icon(Icons.lock),
-          ),
-          SizedBox(
-            width: double.infinity,
-            height: 40.0,
-            child: ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  try {
-                    User? user = await _authService.signInWithEmailAndPassword(_email.text, _password.text, _rememberMe);
-                    if (user!.emailVerified == false) {
-                      await _authService.verifyEmailAddress(user);
-                      showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (BuildContext context) {
-                          return _notVerifiedDialog();
-                        },
-                      );
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  } catch (e) {
-                    showDialog(
-                      barrierDismissible: false,
-                      context: context,
-                      builder: (BuildContext context) {
-                        return _loginFailureDialog();
-                      },
-                    );
-                  }
-                }
-              },
-              child: const Text('Login'),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              TextButton(
-                onPressed: () {
-                  showDialog(
-                    barrierDismissible: false,
-                    context: context,
-                    builder: (BuildContext context) {
-                      return _passwordResetDialog(context);
-                    },
-                  );
-                },
-                child: const Text(
-                  'Forgot password?',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
           ),
           Row(
             children: <Widget>[
@@ -135,99 +172,66 @@ class LoginFormState extends State<LoginForm> {
                   color: Colors.white,
                 ),
               ),
-            ],
-          ),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(0, 12.0, 0, 15.0),
-            child: Text(
-              'or',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 40.0,
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () async {
-                await _authService.signInWithGoogle(_rememberMe);
-                Navigator.pop(context);
-              },
-              icon: const FaIcon(FontAwesomeIcons.google),
-              label: const Text('Sign in with Google'),
-            ),
-          ),
-          /*
-          const Padding(
-            padding: EdgeInsets.fromLTRB(0, 12.0, 0, 15.0),
-            child: Text(
-              'or sign in with',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              InkWell(
-                onTap: () async {
-                  await _authService.signInWithGoogle(_rememberMe);
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  child: const Center(
-                    child: FaIcon(FontAwesomeIcons.google, color: Colors.white),
-                  ),
-                ),
-              ),
-              InkWell(
-                onTap: () async {},
-                child: Container(
-                  width: 40.0,
-                  height: 40.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  child: const Center(
-                    child: FaIcon(FontAwesomeIcons.facebookF, color: Colors.white),
-                  ),
+              Expanded(child: Container()),
+              SizedBox(
+                height: 36.0,
+                width: 110.0,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      try {
+                        User? user = await _authService.signInWithEmailAndPassword(_email.text, _password.text, _rememberMe);
+                        if (user!.emailVerified == false) {
+                          await _authService.verifyEmailAddress(user);
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (BuildContext context) {
+                              return _notVerifiedDialog();
+                            },
+                          );
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      } catch (e) {
+                        showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return _loginFailureDialog();
+                          },
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Sign in'),
                 ),
               ),
             ],
           ),
-           */
           Padding(
-            padding: const EdgeInsets.only(top: 12.0),
+            padding: const EdgeInsets.only(top: 8.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text(
-                  'Don\'t have and account?',
-                  style: TextStyle(
-                    color: Colors.white,
-                  ),
-                ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/register');
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (BuildContext context) {
+                        return _passwordResetDialog(context);
+                      },
+                    );
                   },
-                  child: const Text(
-                    'Sign up',
+                  child: Text(
+                    'Forgot password?',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
                     ),
                   ),
                 ),
+                const SizedBox.shrink(),
               ],
             ),
           ),
@@ -335,6 +339,12 @@ class LoginFormState extends State<LoginForm> {
         ),
       ),
       actions: <Widget>[
+        TextButton(
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         TextButton(
           child: const Text('Reset'),
           onPressed: () async {

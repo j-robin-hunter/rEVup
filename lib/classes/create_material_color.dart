@@ -1,3 +1,10 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 import 'package:flutter/material.dart';
 
 MaterialColor createMaterialColor(Color color) {

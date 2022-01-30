@@ -1,3 +1,10 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 class CmsContent {
   final String _contentName;
   final String _title;

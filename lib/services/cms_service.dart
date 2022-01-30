@@ -1,5 +1,11 @@
-import 'dart:convert';
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
 
+import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:revup/models/cms_content.dart';
 
@@ -26,7 +32,7 @@ class CmsService {
             _cmsContent[cmsContent.contentName] = cmsContent;
           }
         } catch (ex) {
-          print(ex.toString());
+          print('Error cmsContent $ex');
         }
       } else {
         print('Unable to get cms data');

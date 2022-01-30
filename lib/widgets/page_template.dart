@@ -1,10 +1,19 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:revup/services/license_service.dart';
 
 class PageTemplate extends StatelessWidget {
   final Widget body;
   final Widget? action;
   final bool topImage;
-  final Widget? logo;
+  final AlignmentGeometry logoPosition;
   final Color? topColor;
   final Color? bottomColor;
   final String? bottomText;
@@ -14,7 +23,7 @@ class PageTemplate extends StatelessWidget {
     this.action,
     required this.body,
     this.topImage = true,
-    this.logo,
+    this.logoPosition = Alignment.centerRight,
     this.topColor,
     this.bottomColor,
     this.bottomText,
@@ -47,15 +56,15 @@ class PageTemplate extends StatelessWidget {
                 child: action ?? _back(context),
               ),
             ),
-            //if (logo != null)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: SizedBox(
-                  height: 86.0,
-                  child: logo ?? Image.asset('lib/assets/images/logo-rev-230x132.png'),
+            Positioned.fill(
+              child: Align(
+                alignment: logoPosition,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: SizedBox(
+                    height: 86.0,
+                    child: Provider.of<LicenseService>(context).logo,
+                  ),
                 ),
               ),
             ),

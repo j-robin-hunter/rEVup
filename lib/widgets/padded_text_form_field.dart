@@ -1,3 +1,11 @@
+//************************************************************
+//
+//
+// Copyright 2022 Roma Technology Limited, All rights reserved
+//
+//************************************************************
+
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class PaddedTextFormField extends StatelessWidget {
@@ -10,6 +18,8 @@ class PaddedTextFormField extends StatelessWidget {
   final Icon? icon;
   final FocusNode? focusNode;
   final Function(String?)? onSaved;
+  final int maxLines;
+  final int minLines;
 
   const PaddedTextFormField({
     Key? key,
@@ -22,6 +32,8 @@ class PaddedTextFormField extends StatelessWidget {
     this.icon,
     this.focusNode,
     this.onSaved,
+    this.maxLines = 1,
+    this.minLines = 1,
   }) : super(key: key);
 
   @override
@@ -33,9 +45,12 @@ class PaddedTextFormField extends StatelessWidget {
         validator: (value) => validator == null ? null : validator!(value),
         controller: controller,
         onSaved: onSaved,
+        maxLines: max(maxLines, minLines),
+        minLines: max(minLines, 1),
         decoration: InputDecoration(
           isDense: true,
           hintText: hintText,
+          alignLabelWithHint: true,
           labelText: labelText,
           floatingLabelBehavior: floatingLabelBehavior,
           prefixIcon: icon,

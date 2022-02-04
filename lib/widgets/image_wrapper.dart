@@ -30,20 +30,22 @@ class ImageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        final width = (constraints.maxWidth - runSpacing * (columns - 1)) / columns;
-        return SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Wrap(
-            runSpacing: runSpacing,
-            spacing: spacing,
-            alignment: alignment,
-            children: List.generate(images!.length, (index) => _wrappedImage(index, width)),
-          ),
-        );
-      },
-    );
+    return images == null
+        ? const SizedBox.shrink()
+        : LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              final width = (constraints.maxWidth - runSpacing * (columns - 1)) / columns;
+              return SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Wrap(
+                  runSpacing: runSpacing,
+                  spacing: spacing,
+                  alignment: alignment,
+                  children: List.generate(images!.length, (index) => _wrappedImage(index, width)),
+                ),
+              );
+            },
+          );
   }
 
   Widget _wrappedImage(int index, double width) {

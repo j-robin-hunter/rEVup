@@ -24,7 +24,6 @@ class AuthService extends ChangeNotifier {
   Future<User?> signInWithEmailAndPassword(String email, String password, bool rememberMe) async {
     rememberMe == true ? await FirebaseAuth.instance.setPersistence(Persistence.LOCAL) : await FirebaseAuth.instance.setPersistence(Persistence.NONE);
     UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-    notifyListeners();
     return credential.user;
   }
 
@@ -65,7 +64,6 @@ class AuthService extends ChangeNotifier {
       // TODO
       print('Error signInWithGoogle $e');
     }
-    notifyListeners();
   }
 
   Future<void> resetPasswordRequest(String email) async {

@@ -191,7 +191,7 @@ class LoginFormState extends State<LoginForm> {
                             },
                           );
                         } else {
-                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/');
                         }
                       } catch (e) {
                         showDialog(

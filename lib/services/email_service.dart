@@ -5,6 +5,7 @@
 //
 //************************************************************
 
+import 'package:revup/classes/no_email_service_exception.dart';
 import 'package:revup/services/concrete/mailjet_email_service.dart';
 
 abstract class EmailService {
@@ -21,13 +22,16 @@ abstract class EmailService {
   });
 
   factory EmailService.fromMap(Map<String, dynamic> map) {
-    switch (map['serviceName'].toLowerCase()) {
-      case 'mailjet':
-      default:
-        return MailjetEmailService.fromMap(map);
+    if (map['serviceName'] != null) {
+      switch (map['serviceName'].toLowerCase()) {
+        case 'mailjet':
+          return MailjetEmailService.fromMap(map);
+      }
     }
+    throw NoEmailServiceException();
   }
 
   Map<String, dynamic> get map;
+
   Future<bool> sendEnquiryEmail(Map<String, dynamic> enquiry);
 }

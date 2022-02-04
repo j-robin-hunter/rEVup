@@ -10,6 +10,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:revup/models/cms_content.dart';
+import 'package:revup/services/cms_service.dart';
+import 'package:revup/services/license_service.dart';
 import 'package:revup/widgets/image_wrapper.dart';
 
 class ImageUploader extends StatefulWidget {
@@ -35,11 +37,10 @@ class ImageUploader extends StatefulWidget {
 }
 
 class ImageUploaderState extends State<ImageUploader> {
-  Map<String, CmsContent> cmsContent = {};
-
   @override
   Widget build(BuildContext context) {
-    cmsContent = Provider.of<Map<String, CmsContent>>(context);
+    CmsService cmsService = Provider.of<LicenseService>(context).license.cmsService!;
+
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -50,7 +51,7 @@ class ImageUploaderState extends State<ImageUploader> {
       child: Flex(
         direction: Axis.vertical,
         children: <Widget>[
-          _imageAndTextRow(widget.contentName),
+          _imageAndTextRow(cmsService.getCmsContent(widget.contentName)!),
           ImageWrapper(
             height: widget.height,
             images: widget.images,
@@ -131,38 +132,40 @@ class ImageUploaderState extends State<ImageUploader> {
     });
   }
 
-  Widget _imageAndTextRow(String contentName) {
+  Widget _imageAndTextRow(CmsContent content) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Image.network(
-            cmsContent[contentName]!.mediaContent,
-            width: 100,
+          SizedBox(width: 100.0,
+          child: content.mediaContent,
           ),
           const SizedBox(width: 30),
           Expanded(
+            child: content.textContent!,
+            /*
             child: RichText(
-              text: TextSpan(
+              text: const TextSpan(
                 children: <TextSpan>[
                   TextSpan(
-                    text: cmsContent[contentName]!.title + '\n',
-                    style: const TextStyle(
+                    text: 'need to get from content', //cmsContent[contentName]!.title + '\n',
+                    style: TextStyle(
                       fontSize: 12.0,
                       fontWeight: FontWeight.bold,
                       height: 3.0,
                     ),
                   ),
                   TextSpan(
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.0,
                     ),
-                    text: cmsContent[contentName]!.textContent
+                    text: 'need to get from content', //cmsContent[contentName]!.textContent
                   ),
                 ],
               ),
             ),
+            */
           ),
         ],
       ),

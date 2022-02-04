@@ -5,19 +5,18 @@
 //
 //************************************************************
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:revup/classes/validators.dart';
 import 'package:revup/extensions/string_casing_extension.dart';
-import 'package:revup/models/cms_content.dart';
+import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/firebase_storage_service.dart';
+import 'package:revup/services/license_service.dart';
 import 'package:revup/widgets/image_uploader.dart';
 import 'package:revup/widgets/image_wrapper.dart';
 import 'package:revup/widgets/multiselect_formfield.dart';
 import 'package:revup/widgets/padded_text_form_field.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 enum WhomType { individual, business }
 
@@ -57,7 +56,7 @@ class QuoteFormState extends State<QuoteForm> {
   double _screenWidth = 0;
   List _productsAndServices = [];
   WhomType? _whomType = WhomType.individual;
-  Map<String, CmsContent> cmsContent = {};
+  CmsService? _cmsService;
 
   @override
   void initState() {
@@ -92,9 +91,9 @@ class QuoteFormState extends State<QuoteForm> {
   @override
   Widget build(BuildContext context) {
     final firebaseStorageService = Provider.of<FirebaseStorageService>(context);
-    cmsContent = Provider.of<Map<String, CmsContent>>(context);
 
     _screenWidth = MediaQuery.of(context).size.width;
+    _cmsService = Provider.of<LicenseService>(context).license.cmsService;
 
     return _isCompleted
         ? const Text('all done now')
@@ -157,20 +156,20 @@ class QuoteFormState extends State<QuoteForm> {
                     margin: const EdgeInsets.only(top: 20),
                     child: Row(
                       children: <Widget>[
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: details.onStepContinue,
-                            child: Text(isLastStep ? 'Confirm' : 'Next'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
                         if (_currentStep != 0)
                           Expanded(
                             child: ElevatedButton(
                               onPressed: details.onStepCancel,
                               child: const Text('Back'),
                             ),
-                          )
+                          ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: details.onStepContinue,
+                            child: Text(isLastStep ? 'Confirm' : 'Next'),
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -301,9 +300,9 @@ class QuoteFormState extends State<QuoteForm> {
               children: <Widget>[
                 const Text('We need to get some details so we can work out a route for the installation'),
                 const SizedBox(height: 30),
-                if (_productsAndServices.contains('Electric Vehicle Charging')) _imagesField('form 1', 2, height: _screenWidth > 600 ? 80 : 75),
-                _imagesField('form 2', 1, height: _screenWidth > 600 ? 80 : 75, maxImages: 2),
-                _imagesField('form 3', 1, height: _screenWidth > 600 ? 80 : 75),
+                //if (_productsAndServices.contains('Electric Vehicle Charging')) _imagesField('form 1', 2, height: _screenWidth > 600 ? 80 : 75),
+                _imagesField('fuseboard', 1, height: _screenWidth > 600 ? 80 : 75, maxImages: 2),
+                //_imagesField('form 3', 1, height: _screenWidth > 600 ? 80 : 75),
               ],
             ),
           ),
@@ -447,47 +446,25 @@ class QuoteFormState extends State<QuoteForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Container(
-                margin: const EdgeInsets.only(
-                  top: 10,
-                  bottom: 10,
+              DefaultTextStyle(
+                style: const TextStyle(
+                  fontSize: 12.0,
                 ),
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.all(Radius.circular(3)),
-                  border: Border.all(
-                    color: Colors.black54,
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(
+                    top: 10,
+                    bottom: 10,
                   ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        const TextSpan(
-                          text:
-                              "Roma Technology Limited (Romatech) is committed to protecting and respecting your privacy. We will only use your personal information to administer your account and to provide the products and services you have requested from us.\n\nIn order to provide you with the service requested we will need to store and process your personal data. If you consent to us storing your personal data for this purpose please tick the checkbox below.\n\nWe will not use this information for any other purposes and will not provide any of your personal information to any other party without your express consent.\n\nYou may withdraw your consent at anytime by contacting us at ",
-                        ),
-                        TextSpan(
-                          text: "hello@romatech.co.uk",
-                          style: const TextStyle(color: Colors.blue),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              launch('mailto:hello@romatech.co.uk');
-                            },
-                        ),
-                        const TextSpan(
-                          text: ". For more information please see our ",
-                        ),
-                        TextSpan(
-                          text: "Privacy Policy",
-                          style: const TextStyle(color: Colors.blue),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              launch('https://www.romatech.co.uk/privacy-policy-cookie-restriction-mode');
-                            },
-                        ),
-                      ],
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(3)),
+                    border: Border.all(
+                      color: Colors.black54,
                     ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: _cmsService?.getCmsContent('privacy')?.textContent,
                   ),
                 ),
               ),
@@ -501,7 +478,7 @@ class QuoteFormState extends State<QuoteForm> {
                     }),
                   ),
                   const Flexible(
-                    child: Text('I agree to Roma Technology Limited storing and processing my personal data.'),
+                    child: Text('I agree to the above conditions for the storing and processing of my personal data.'),
                   ),
                 ],
               ),
@@ -598,7 +575,7 @@ class QuoteFormState extends State<QuoteForm> {
           width: 250,
           child: Text(label),
         ),
-        Text(text, maxLines: maxLines),
+        Text(text), //maxLines: maxLines),
       ],
     );
   }

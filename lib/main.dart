@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:revup/models/cms_content.dart';
 import 'package:revup/screens/enquiry_screen.dart';
 import 'package:revup/screens/home_screen.dart';
 import 'package:revup/screens/login_screen.dart';
@@ -18,9 +17,7 @@ import 'package:revup/screens/quote_screen.dart';
 import 'package:revup/screens/setup_screen.dart';
 import 'package:revup/screens/register_screen.dart';
 import 'package:revup/services/auth_service.dart';
-import 'package:revup/services/environment_service.dart';
 import 'package:revup/services/license_service.dart';
-import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/firebase_storage_service.dart';
 import 'package:revup/services/profile_service.dart';
 import 'classes/create_material_color.dart';
@@ -70,21 +67,14 @@ class MyAppState extends State<MyApp> {
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(),
         ),
-        ChangeNotifierProvider<ProfileService>(
+        Provider<ProfileService>(
           create: (_) => ProfileService(),
         ),
         Provider<FirebaseStorageService>(
           create: (_) => FirebaseStorageService(),
         ),
-        FutureProvider<Map<String, CmsContent>>(
-          create: (_) => CmsService().cmsContent(),
-          initialData: const {},
-        ),
         Provider<LicenseService>(
           create: (_) => LicenseService(),
-        ),
-        Provider<EnvironmentService>(
-          create: (_) => EnvironmentService(),
         ),
       ],
       child: MaterialApp(

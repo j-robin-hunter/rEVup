@@ -7,11 +7,9 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:revup/models/license.dart';
 import 'package:revup/models/profile.dart';
 
-class ProfileService extends ChangeNotifier {
+class ProfileService {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   final Profile _profile = Profile();
@@ -22,8 +20,8 @@ class ProfileService extends ChangeNotifier {
 
   Profile get profile => _profile;
 
-  Future<Profile> loadProfile(License license, User? user) async {
-    await _getProfiles().where('licencedTo', isEqualTo: license.licensee).where('email', isEqualTo: user?.email ?? '').get().then((event) {
+  Future<Profile> loadProfile(User? user) async {
+    await _getProfiles().where('email', isEqualTo: user?.email ?? '').get().then((event) {
       if (event.docs.isNotEmpty) {
         var profileData = event.docs.first.data();
         _profile.setFromMap(profileData);
@@ -31,7 +29,6 @@ class ProfileService extends ChangeNotifier {
         if (_profile.name.isEmpty) _profile.name = profileData['name'] ?? '';
         if (_profile.photoUrl.isEmpty) _profile.photoUrl = profileData['photoUrl'] ?? '';
       } else {
-        _profile.setLicensedTo(license.licensee);
         _profile.setEmail(user?.email ?? '');
         _profile.setName(user?.displayName ?? '');
         _profile.setPhotoUrl(user?.photoURL ?? '');

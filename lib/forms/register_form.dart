@@ -81,7 +81,7 @@ class RegisterForm extends StatelessWidget {
                             child: const Text('OK'),
                           ),
                         ],
-                      ); //_createdDialog(context, _email.text, _password.text);
+                      );
                     },
                   );
                 }

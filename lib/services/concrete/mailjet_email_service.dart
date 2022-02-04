@@ -10,6 +10,7 @@ import '../../services/email_service.dart';
 import 'package:http/http.dart' as http;
 
 class MailjetEmailService extends EmailService {
+  final String serviceName;
   final String apiKey;
   final String secretKey;
   final int enquiryTemplate;
@@ -17,6 +18,7 @@ class MailjetEmailService extends EmailService {
 
 
   MailjetEmailService({
+    required this.serviceName,
     required this.apiKey,
     required this.secretKey,
     required this.enquiryTemplate,
@@ -34,6 +36,7 @@ class MailjetEmailService extends EmailService {
 
   static EmailService fromMap(Map<String, dynamic> map) {
     return MailjetEmailService(
+      serviceName: map['serviceName'],
       emailServiceApiUrl: map['emailServiceApiUrl'],
       emailFromName: map['emailFromName'],
       enquiryToEmail: map['enquiryToEmail'],
@@ -47,6 +50,7 @@ class MailjetEmailService extends EmailService {
 
   @override
   Map<String, dynamic> get map => {
+    'serviceName': serviceName,
     'emailServiceApiUrl': emailServiceApiUrl,
     'enquiryEmailSubject': enquiryEmailSubject,
     'enquiryToEmail': enquiryToEmail,

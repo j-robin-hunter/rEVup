@@ -5,13 +5,10 @@
 //
 //************************************************************
 
-
 import 'package:revup/classes/no_support_service_exception.dart';
-
 import 'concrete/zoho_desk_support_service.dart';
 
 abstract class SupportService {
-
   SupportService();
 
   factory SupportService.fromMap(Map<String, dynamic> map) {
@@ -24,5 +21,5 @@ abstract class SupportService {
     throw NoSupportServiceException();
   }
 
-  Map<String, dynamic> get map;
+  Future<void> createSupportTicket();
 }

@@ -21,21 +21,23 @@ class ProfileService {
   Profile get profile => _profile;
 
   Future<Profile> loadProfile(User? user) async {
-    await _getProfiles().where('email', isEqualTo: user?.email ?? '').get().then((event) {
-      if (event.docs.isNotEmpty) {
-        var profileData = event.docs.first.data();
-        _profile.setFromMap(profileData);
-        _profile.id = event.docs.first.id;
-        if (_profile.name.isEmpty) _profile.name = profileData['name'] ?? '';
-        if (_profile.photoUrl.isEmpty) _profile.photoUrl = profileData['photoUrl'] ?? '';
-      } else {
-        _profile.setEmail(user?.email ?? '');
-        _profile.setName(user?.displayName ?? '');
-        _profile.setPhotoUrl(user?.photoURL ?? '');
-      }
-    }).catchError((e) {
-      throw Exception('Unable to load profile data. Unexpected missing data.');
-    });
+    if (user != null) {
+      await _getProfiles().where('email', isEqualTo: user.email ?? '').get().then((event) {
+        if (event.docs.isNotEmpty) {
+          var profileData = event.docs.first.data();
+          _profile.setFromMap(profileData);
+          _profile.id = event.docs.first.id;
+          if (_profile.name.isEmpty) _profile.name = profileData['name'] ?? '';
+          if (_profile.photoUrl.isEmpty) _profile.photoUrl = profileData['photoUrl'] ?? '';
+        } else {
+          _profile.setEmail(user.email ?? '');
+          _profile.setName(user.displayName ?? '');
+          _profile.setPhotoUrl(user.photoURL ?? '');
+        }
+      }).catchError((e) {
+        throw Exception('Unable to load profile data. Unexpected missing data.');
+      });
+    }
     return _profile;
   }
 

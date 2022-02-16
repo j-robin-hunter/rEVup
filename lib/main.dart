@@ -10,17 +10,21 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:revup/models/license.dart';
 import 'package:revup/screens/enquiry_screen.dart';
 import 'package:revup/screens/home_screen.dart';
+import 'package:revup/screens/initial_license_screen.dart';
+import 'package:revup/screens/license_key_screen.dart';
 import 'package:revup/screens/login_screen.dart';
+import 'package:revup/screens/not_started_screen.dart';
 import 'package:revup/screens/quote_screen.dart';
 import 'package:revup/screens/setup_screen.dart';
 import 'package:revup/screens/register_screen.dart';
 import 'package:revup/services/auth_service.dart';
+import 'package:revup/services/environment_service.dart';
 import 'package:revup/services/license_service.dart';
 import 'package:revup/services/firebase_storage_service.dart';
 import 'package:revup/services/profile_service.dart';
-import 'classes/create_material_color.dart';
 import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
@@ -55,15 +59,13 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  final int airSuperiorityBlue = 0xff579aba;
-  final int greenSheen = 0xff84c1c1;
-  final int midGrey = 0xff777777;
-  final int veryDarkGrey = 0xff2a2a2a;
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<EnvironmentService>(
+          create: (_) => EnvironmentService(),
+        ),
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(),
         ),
@@ -73,90 +75,68 @@ class MyAppState extends State<MyApp> {
         Provider<FirebaseStorageService>(
           create: (_) => FirebaseStorageService(),
         ),
-        Provider<LicenseService>(
+        ChangeNotifierProvider<LicenseService>(
           create: (_) => LicenseService(),
         ),
       ],
-      child: MaterialApp(
-        title: 'rEVup',
-        theme: ThemeData(
-          primarySwatch: createMaterialColor(Color(greenSheen)),
-          secondaryHeaderColor: Color(veryDarkGrey),
-          unselectedWidgetColor: Color(greenSheen),
-          highlightColor: Color(midGrey),
-          bottomAppBarColor: Color(midGrey),
-          appBarTheme: AppBarTheme(backgroundColor: Color(airSuperiorityBlue), foregroundColor: Colors.white),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-            ),
-          ),
-          floatingActionButtonTheme: FloatingActionButtonThemeData(
-            backgroundColor: Color(greenSheen),
-            foregroundColor: Colors.white,
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            isDense: true,
-            labelStyle: const TextStyle(
-              color: Colors.black26,
-            ),
-            hintStyle: const TextStyle(
-              color: Colors.black26,
-            ),
-            floatingLabelBehavior: FloatingLabelBehavior.auto,
-            floatingLabelStyle: TextStyle(
-              color: Color(airSuperiorityBlue),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                color: Colors.black12,
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: const BorderSide(
-                color: Colors.black87,
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            focusedErrorBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.black54,
-                width: 1,
-              ),
-            ),
-            errorBorder: const OutlineInputBorder(
-              borderSide: BorderSide(
-                color: Colors.black12,
-                width: 1,
-              ),
-            ),
-            filled: true,
-            fillColor: Colors.white,
-          ),
-          errorColor: Colors.deepOrange,
-        ),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: const [
-          Locale('en', ''),
-        ],
-        initialRoute: '/',
-        //onGenerateRoute: (route) => onGenerateRoute(route),
-        routes: {
-          '/': (context) => const HomeScreen(),
-          '/login': (context) => const LoginScreen(),
-          '/enquiry': (context) => const EnquiryScreen(),
-          '/quote': (context) =>const QuoteScreen(),
-          '/register': (context) => const RegisterScreen(),
-          '/setup': (context) => const SetupScreen(),
-        },
-      ),
+      child: const TheApplication(),
+    );
+  }
+}
+
+class TheApplication extends StatelessWidget {
+  const TheApplication({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: Future.wait([
+        Provider.of<EnvironmentService>(context).loadEnvironment(),
+        Provider.of<LicenseService>(context).loadLicense(),
+      ]),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.hasData) {
+          License license = snapshot.data[1] as License;
+          return license.created == null
+              ? MaterialApp(
+                  title: 'rEVup',
+                  theme: license.branding.themeData,
+                  initialRoute: '/',
+                  routes: {
+                    '/': (context) => const LicenseKeyScreen(),
+                    '/initialLicensee': (context) => const InitialLicenseScreen(),
+                  },
+                )
+              : MaterialApp(
+                  title: 'rEVup',
+                  theme: license.branding.themeData,
+                  localizationsDelegates: const [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: const [
+                    Locale('en', ''),
+                  ],
+                  initialRoute: '/',
+                  //onGenerateRoute: (route) => onGenerateRoute(route),
+                  routes: {
+                    '/': (context) => const HomeScreen(),
+                    '/login': (context) => const LoginScreen(),
+                    '/enquiry': (context) => const EnquiryScreen(),
+                    '/quote': (context) => const QuoteScreen(),
+                    '/register': (context) => const RegisterScreen(),
+                    '/setup': (context) => const SetupScreen(),
+                  },
+                );
+        } else if (snapshot.hasError) {
+          return MaterialApp(
+            home: NotStartedScreen(error: snapshot.error.toString()),
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 }

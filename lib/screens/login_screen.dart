@@ -32,34 +32,31 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _loginScreenBody() {
-    return Card(
-      elevation: 10,
-      child: SingleChildScrollView(
-        child: Container(
-          height: 400.0,
-          constraints: const BoxConstraints(
-            minWidth: 400,
-            maxWidth: 800,
+    return SingleChildScrollView(
+      child: Container(
+        height: 400.0,
+        constraints: const BoxConstraints(
+          minWidth: 400,
+          maxWidth: 800,
+        ),
+        decoration: const BoxDecoration(
+          borderRadius: BorderRadius.all(
+            Radius.circular(5.0),
           ),
-          decoration: const BoxDecoration(
-            borderRadius: BorderRadius.all(
-              Radius.circular(3.0),
-            ),
-            image: DecorationImage(
-              image: AssetImage('lib/assets/images/earth.png'),
-              fit: BoxFit.cover,
-            ),
+          image: DecorationImage(
+            image: AssetImage('lib/assets/images/earth.png'),
+            fit: BoxFit.cover,
           ),
-          alignment: Alignment.centerLeft,
-          // align your child's position.
-          child: const Padding(
-            padding: EdgeInsets.only(left: 50.0),
-            child: SizedBox(
-              width: 294.0,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.0),
-                child: LoginForm(),
-              ),
+        ),
+        alignment: Alignment.centerLeft,
+        // align your child's position.
+        child: const Padding(
+          padding: EdgeInsets.only(left: 50.0),
+          child: SizedBox(
+            width: 294.0,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              child: LoginForm(),
             ),
           ),
         ),

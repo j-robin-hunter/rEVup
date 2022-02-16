@@ -138,8 +138,9 @@ class ImageUploaderState extends State<ImageUploader> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SizedBox(width: 100.0,
-          child: content.mediaContent,
+          SizedBox(
+            width: 100.0,
+            child: content.mediaContent,
           ),
           const SizedBox(width: 30),
           Expanded(

@@ -48,7 +48,6 @@ class PaddedTextFormField extends StatelessWidget {
         maxLines: max(maxLines, minLines),
         minLines: max(minLines, 1),
         decoration: InputDecoration(
-          isDense: true,
           hintText: hintText,
           alignLabelWithHint: true,
           labelText: labelText,

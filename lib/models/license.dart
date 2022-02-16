@@ -5,6 +5,7 @@
 //
 //************************************************************
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:revup/classes/no_cms_service_exception.dart';
 import 'package:revup/classes/no_email_service_exception.dart';
 import 'package:revup/classes/no_support_service_exception.dart';
@@ -12,57 +13,58 @@ import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/email_service.dart';
 import 'package:revup/services/support_service.dart';
 
+import 'branding.dart';
+
 class License {
-  late String id;
-  String logoUrl = '';
-  String licensee = '';
-  List<String> administrators = [];
-  EmailService? emailService;
-  CmsService? cmsService;
-  SupportService? supportService;
-
+  String? _id;
+  String _licensee = '';
+  String _profile = '';
+  List<String> _administrators = [];
+  final Branding _branding = Branding();
+  EmailService? _emailService;
+  CmsService? _cmsService;
+  SupportService? _supportService;
   DateTime? created;
-  DateTime? updated;
-
-  License() {
-    created = DateTime.now();
-    updated = DateTime.now();
-  }
+  DateTime? _updated;
 
   Map<String, dynamic> get map {
     Map<String, dynamic> map = {
-      'licensee': licensee,
-      'logoUrl': logoUrl,
-      'administrators': administrators,
+      'licensee': _licensee,
+      'created': created,
+      'updated': _updated,
     };
-    map.addAll(emailService!.map);
+    map['branding'] = (_branding.map);
+    //map.addAll(_emailService!.map);
     return map;
   }
 
   void setFromMap(Map<String, dynamic> map) {
     try {
-      setLicensee(map['licensee']);
-      setLogoUrl(map['logoUrl'] ?? '');
+      _licensee = map['licensee'];
+      _profile = map['profile'] ?? '';
+      if (map['created'] != null) created = (map['created'] as Timestamp).toDate();
+      if (map['updated'] != null) _updated = (map['updated'] as Timestamp).toDate();
       setAdministrators(List.from(map['administrators'] ?? []));
+      //if (map['branding'] != null) _branding = Branding.fromMap(map['branding']);
       try {
         setEmailService(EmailService.fromMap(map['emailService'] ?? {}));
       } on NoEmailServiceException {
-        emailService = null;
+        _emailService = null;
       } catch (ex) {
         throw Exception('Email service: ${ex.toString()}');
       }
       try {
         setCmsService(CmsService.fromMap(map['cmsService'] ?? {}));
-        cmsService!.licensee = licensee;
+        _cmsService!.licensee = _licensee;
       } on NoCmsServiceException {
-        cmsService = null;
+        _cmsService = null;
       } catch (ex) {
         throw Exception('CMS service: ${ex.toString()}');
       }
       try {
         setSupportService(SupportService.fromMap(map['supportService'] ?? {}));
       } on NoSupportServiceException {
-        supportService = null;
+        _supportService = null;
       } catch (ex) {
         throw Exception('Support service: ${ex.toString()}');
       }
@@ -71,19 +73,63 @@ class License {
     }
   }
 
-  setLicensee(String value) => licensee = value;
+  String? get id => _id;
 
-  setEmailService(EmailService value) => emailService = value;
+  String get licensee => _licensee;
 
-  setCmsService(CmsService value) => cmsService = value;
+  String get profile => _profile;
 
-  setSupportService(SupportService value) => supportService = value;
+  List<String> get administrators => _administrators;
 
-  setLogoUrl(String value) => logoUrl = value;
+  Branding get branding => _branding;
 
-  setAdministrators(List<String> value) => administrators = value;
+  EmailService? get emailService => _emailService;
 
-  setId(String value) => id = value;
+  CmsService? get cmsService => _cmsService;
 
-  setUpdated(DateTime value) => updated = value;
+  SupportService? get supportService => _supportService;
+
+  DateTime? get updated => _updated;
+
+  setLicensee(String value) {
+    _licensee = value;
+    _updated = DateTime.now();
+  }
+
+  setProfile(String value) {
+    _profile = value;
+    _updated = DateTime.now();
+  }
+
+  setEmailService(EmailService value) {
+    _emailService = value;
+    _updated = DateTime.now();
+  }
+
+  setCmsService(CmsService value) {
+    _cmsService = value;
+    _updated = DateTime.now();
+  }
+
+  setSupportService(SupportService value) {
+    _supportService = value;
+    _updated = DateTime.now();
+  }
+
+  setAdministrators(List<String> value) {
+    _administrators = value;
+    _updated = DateTime.now();
+  }
+
+  setId(String value) {
+    _id = value;
+    _updated = DateTime.now();
+  }
+
+  /*
+  setCreated(DateTime value) {
+    _created = value;
+    _updated = value;
+  }
+  */
 }

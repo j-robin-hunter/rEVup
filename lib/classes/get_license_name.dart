@@ -5,16 +5,16 @@
 //
 //************************************************************
 
-import 'dart:js' as js;
 import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 
 class GetLicenseName {
-  static String get name {
+  static Future<String> get licensee async {
     try {
-      var jsBrand = js.JsObject.fromBrowserObject(js.context['license']);
-      return utf8.decode(base64.decode(jsBrand['id']));
+      return utf8.decode(base64.decode(await rootBundle.loadString('lib/assets/license.txt')));
     } catch (e) {
       throw Exception('Unable to get license id');
     }
   }
 }
+

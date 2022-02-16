@@ -16,7 +16,6 @@ class MailjetEmailService extends EmailService {
   final int enquiryTemplate;
   final int enquiryConfirmTemplate;
 
-
   MailjetEmailService({
     required this.serviceName,
     required this.apiKey,
@@ -24,11 +23,11 @@ class MailjetEmailService extends EmailService {
     required this.enquiryTemplate,
     required this.enquiryConfirmTemplate,
     required emailFromName,
-    required emailServiceApiUrl,
+    required serviceApiUrl,
     required enquiryEmailSubject,
     required enquiryToEmail,
   }) : super(
-          emailServiceApiUrl: emailServiceApiUrl,
+          serviceApiUrl: serviceApiUrl,
           emailFromName: emailFromName,
           enquiryToEmail: enquiryToEmail,
           enquiryEmailSubject: enquiryEmailSubject,
@@ -37,7 +36,7 @@ class MailjetEmailService extends EmailService {
   static EmailService fromMap(Map<String, dynamic> map) {
     return MailjetEmailService(
       serviceName: map['serviceName'],
-      emailServiceApiUrl: map['emailServiceApiUrl'],
+      serviceApiUrl: map['serviceApiUrl'],
       emailFromName: map['emailFromName'],
       enquiryToEmail: map['enquiryToEmail'],
       enquiryEmailSubject: map['enquiryEmailSubject'],
@@ -50,19 +49,19 @@ class MailjetEmailService extends EmailService {
 
   @override
   Map<String, dynamic> get map => {
-    'serviceName': serviceName,
-    'emailServiceApiUrl': emailServiceApiUrl,
-    'enquiryEmailSubject': enquiryEmailSubject,
-    'enquiryToEmail': enquiryToEmail,
-    'apiKey': apiKey,
-    'secretKey': secretKey,
-    'enquiryTemplate': enquiryTemplate,
-    'enquiryConfirmTemplate': enquiryConfirmTemplate,
-  };
+        'serviceName': serviceName,
+        'emailServiceApiUrl': serviceApiUrl,
+        'enquiryEmailSubject': enquiryEmailSubject,
+        'enquiryToEmail': enquiryToEmail,
+        'apiKey': apiKey,
+        'secretKey': secretKey,
+        'enquiryTemplate': enquiryTemplate,
+        'enquiryConfirmTemplate': enquiryConfirmTemplate,
+      };
 
   @override
   Future<bool> sendEnquiryEmail(Map<String, dynamic> enquiry) async {
-    final url = Uri.parse(emailServiceApiUrl);
+    final url = Uri.parse(serviceApiUrl);
     http.Response response = await http.post(
       url,
       headers: {
@@ -91,7 +90,7 @@ class MailjetEmailService extends EmailService {
               'userName': enquiry['name'],
               'userEmail': enquiry['email'],
               'userPhone': enquiry['phone'],
-              'brandName' : emailFromName,
+              'brandName': emailFromName,
             },
           },
         ],
@@ -132,7 +131,7 @@ class MailjetEmailService extends EmailService {
               'userName': enquiry['name'],
               'userEmail': enquiry['email'],
               'userPhone': enquiry['phone'],
-              'brandName' : emailFromName,
+              'brandName': emailFromName,
             },
           },
         ],

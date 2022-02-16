@@ -8,12 +8,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:revup/classes/no_license_exception.dart';
 import 'package:revup/models/license.dart';
 import 'package:revup/models/profile.dart';
 import 'package:revup/services/auth_service.dart';
 import 'package:revup/services/license_service.dart';
 import 'package:revup/services/profile_service.dart';
 import 'package:revup/widgets/error_dialog.dart';
+import 'package:revup/widgets/page_error.dart';
 import 'package:revup/widgets/page_template.dart';
 import 'package:revup/widgets/page_waiting.dart';
 
@@ -41,7 +43,7 @@ class HomeScreenState extends State<HomeScreen> {
           future: Future.wait([_authService.user, _licenseService.loadLicense()]),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return _error(context, snapshot.error.toString());
+              return snapshot.error is NoLicenseException ? const Text('No license') : PageError(error: snapshot.error.toString());
             } else if (snapshot.hasData) {
               List futures = snapshot.data as List;
               User? user = futures[0][0];
@@ -54,22 +56,27 @@ class HomeScreenState extends State<HomeScreen> {
                   if (snapshot.hasData) {
                     List future = snapshot.data as List;
                     Profile profile = future[0] as Profile;
-                    List<String> licensedToList = profile.licencedTo.split(RegExp(r",\s*"));
-                    if (user != null && licensedToList.length > 1 && !switched) {
-                      switched = true;
-                      Future.delayed(Duration.zero, () {
-                        showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (context) => _selectLicensee(context, license.licensee, licensedToList),
-                        ).then((selectedLicensee) async {
-                          license.setLicensee('');
-                          await _licenseService.loadLicense(selectedLicensee);
-                          setState(() => switched = true);
-                        }).catchError((e) {
-                          showDialog(barrierDismissible: false, context: context, builder: (context) => ErrorDialog(error: 'Cannot change partner: $e'));
+                    if (profile.licencedTo.isNotEmpty) {
+                      List<String> licensedToList = profile.licencedTo.split(RegExp(r",\s*"));
+                      if (user != null && licensedToList.length > 1 && !switched) {
+                        switched = true;
+                        Future.delayed(Duration.zero, () {
+                          showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) => _selectLicensee(context, license.licensee, licensedToList),
+                          ).then((selectedLicensee) async {
+                            license.setLicensee('');
+                            await _licenseService.loadLicense(selectedLicensee);
+                            setState(() => switched = true);
+                          }).catchError((e) {
+                            showDialog(
+                                barrierDismissible: false, context: context, builder: (context) => ErrorDialog(error: 'Cannot change partner: $e'));
+                          });
                         });
-                      });
+                      }
+                    } else {
+                      profile.setLicensedTo(license.licensee);
                     }
                     return PageTemplate(
                       action: user == null || user.emailVerified == false ? const SizedBox.shrink() : _welcome(context, profile),
@@ -78,7 +85,7 @@ class HomeScreenState extends State<HomeScreen> {
                       logoPosition: user == null ? Alignment.center : Alignment.centerRight,
                     );
                   } else if (snapshot.hasError) {
-                    return _error(context, 'Unable to load application profile.');
+                    return const PageError(error: 'Unable to load application profile.');
                   } else {
                     return const PageWaiting(message: 'Please wait ... loading profile');
                   }
@@ -101,12 +108,12 @@ class HomeScreenState extends State<HomeScreen> {
           minWidth: 400,
           maxWidth: 800,
         ),
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(
-            Radius.circular(3.0),
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(5.0),
           ),
           image: DecorationImage(
-            image: AssetImage('lib/assets/images/earth.png'),
+            image: license.branding.getBackgroundImageUrl,
             fit: BoxFit.cover,
           ),
         ),
@@ -164,6 +171,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
+                  const Padding(padding: EdgeInsets.only(bottom: 8.0), child: Text('Licensee initial setup.')),
                   SizedBox(
                     width: double.infinity,
                     height: 36.0,
@@ -223,26 +231,6 @@ class HomeScreenState extends State<HomeScreen> {
                   'Hi ${profile.email}',
                   style: const TextStyle(color: Colors.white),
                 ),
-        ],
-      ),
-    );
-  }
-
-  Widget _error(BuildContext context, String error) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text('The following unexpected error has occurred:'),
-          const SizedBox(height: 5.0),
-          Text(
-            error,
-            style: TextStyle(
-              color: Theme.of(context).errorColor,
-            ),
-          ),
-          const SizedBox(height: 15.0),
-          const Text('Please contact technical@romatech.co.uk'),
         ],
       ),
     );

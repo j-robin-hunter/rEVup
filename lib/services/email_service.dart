@@ -9,13 +9,13 @@ import 'package:revup/classes/no_email_service_exception.dart';
 import 'package:revup/services/concrete/mailjet_email_service.dart';
 
 abstract class EmailService {
-  final String emailServiceApiUrl;
+  final String serviceApiUrl;
   final String emailFromName;
   final String enquiryEmailSubject;
   final String enquiryToEmail;
 
   EmailService({
-    required this.emailServiceApiUrl,
+    required this.serviceApiUrl,
     required this.emailFromName,
     required this.enquiryEmailSubject,
     required this.enquiryToEmail,

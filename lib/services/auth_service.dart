@@ -8,6 +8,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:revup/classes/authentication_exception.dart';
 
 class AuthService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -22,9 +23,14 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<User?> signInWithEmailAndPassword(String email, String password, bool rememberMe) async {
-    rememberMe == true ? await FirebaseAuth.instance.setPersistence(Persistence.LOCAL) : await FirebaseAuth.instance.setPersistence(Persistence.NONE);
-    UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-    return credential.user;
+    try {
+      rememberMe == true ? await _firebaseAuth.setPersistence(Persistence.LOCAL) : await FirebaseAuth.instance.setPersistence(Persistence.NONE);
+      UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      return credential.user;
+    } catch(e) {
+      // Todo
+      print(e);
+    }
   }
 
   Future<User?> createUserWithEmailAndPassword(
@@ -47,11 +53,21 @@ class AuthService extends ChangeNotifier {
     }
   }
 
-  Future<void> signInWithGoogle(bool rememberMe) async {
+  Future<User?> signInAnonymously() async {
+    try {
+      await _firebaseAuth.setPersistence(Persistence.NONE);
+      UserCredential credential = await _firebaseAuth.signInAnonymously();
+      return credential.user;
+    } catch(e) {
+      throw AuthenticationException();
+    }
+  }
+
+  Future<User?> signInWithGoogle(bool rememberMe) async {
     rememberMe == true ? await _firebaseAuth.setPersistence(Persistence.LOCAL) : await _firebaseAuth.setPersistence(Persistence.NONE);
     try {
       final googleUser = await googleSignIn.signIn();
-      if (googleUser == null) return;
+      if (googleUser == null) throw AuthenticationException();
 
       final googleAuth = await googleUser.authentication;
       final googleCredential = GoogleAuthProvider.credential(
@@ -59,7 +75,9 @@ class AuthService extends ChangeNotifier {
         idToken: googleAuth.idToken,
       );
 
-      await _firebaseAuth.signInWithCredential(googleCredential);
+      UserCredential credential = await _firebaseAuth.signInWithCredential(googleCredential);
+      notifyListeners();
+      return credential.user;
     } catch (e) {
       // TODO
       print('Error signInWithGoogle $e');

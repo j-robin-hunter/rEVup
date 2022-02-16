@@ -38,8 +38,8 @@ class Profile {
     this.phone = '',
     this.photoUrl = '',
   }) {
-    created = DateTime.now();
     updated = DateTime.now();
+    created = DateTime.now();
   }
 
   Map<String, dynamic> get map {
@@ -62,52 +62,100 @@ class Profile {
     };
   }
 
-  //String get jsonData => json.encode(map);
-
   void setFromMap(Map<String, dynamic> map) {
-    setLicensedTo(map['licencedTo']);
-    setName(map['name']);
-    setEmail(map['email']);
-    setType(map['type']);
-    setCompany(map['company']);
-    setAddressOne(map['addressOne']);
-    setAddressTwo(map['addressTwo']);
-    setCity(map['city']);
-    setCounty(map['county']);
-    setPostcode(map['postcode']);
-    setCountry(map['country']);
-    setPhone(map['phone']);
-    setUpdated(map['updated'].toDate());
-    created = map['created'].toDate();
+    licencedTo = map['licencedTo'] ?? '';
+    name = map['name'] ?? '';
+    email = map['email'];
+    company = map['company'] ?? '';
+    addressOne = map['addressOne'] ?? '';
+    addressTwo = map['addressTwo'] ?? '';
+    city = map['city'] ?? '';
+    county = map['county'] ?? '';
+    postcode = map['postcode'] ?? '';
+    country = map['country'] ?? '';
+    phone = map['phone'] ?? '';
+    if (map['updated'] != null) {
+      updated = map['updated'].toDate();
+    } else {
+      updated = DateTime.now();
+    }
+    if (map['created'] != null) {
+      created = map['created'].toDate();
+    }
   }
 
-  setLicensedTo(String value) => licencedTo = value;
+  setLicensedTo(String value) {
+    licencedTo = value;
+    updated = DateTime.now();
+  }
 
-  setName(String value) => name = value;
+  setName(String value) {
+    name = value;
+    updated = DateTime.now();
+  }
 
-  setId(String? value) => id = value;
+  setId(String? value) {
+    id = value;
+    updated = DateTime.now();
+  }
 
-  setEmail(String value) => email = value;
+  setEmail(String value) {
+    email = value;
+    updated = DateTime.now();
+  }
 
-  setType(String value) => type = value;
+  setType(String value) {
+    type = value;
+    updated = DateTime.now();
+  }
 
-  setCompany(String value) => company = value;
+  setCompany(String value) {
+    company = value;
+    updated = DateTime.now();
+  }
 
-  setAddressOne(String value) => addressOne = value;
+  setAddressOne(String value) {
+    addressOne = value;
+    updated = DateTime.now();
+  }
 
-  setAddressTwo(String value) => addressTwo = value;
+  setAddressTwo(String value) {
+    addressTwo = value;
+    updated = DateTime.now();
+  }
 
-  setCity(String value) => city = value;
+  setCity(String value) {
+    city = value;
+    updated = DateTime.now();
+  }
 
-  setCounty(String value) => county = value;
+  setCounty(String value) {
+    county = value;
+    updated = DateTime.now();
+  }
 
-  setPostcode(String value) => postcode = value;
+  setPostcode(String value) {
+    postcode = value;
+    updated = DateTime.now();
+  }
 
-  setCountry(String value) => country = value;
+  setCountry(String value) {
+    country = value;
+    updated = DateTime.now();
+  }
 
-  setPhotoUrl(value) => photoUrl = value;
+  setPhotoUrl(value) {
+    photoUrl = value;
+    updated = DateTime.now();
+  }
 
-  setPhone(String value) => phone = value;
+  setPhone(String value) {
+    phone = value;
+    updated = DateTime.now();
+  }
 
-  setUpdated(DateTime value) => updated = value;
+  setUpdated(DateTime value) {
+    updated = value;
+    updated = DateTime.now();
+  }
 }

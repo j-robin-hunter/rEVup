@@ -31,57 +31,62 @@ class PageTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Stack(
-          children: <Widget>[
-            Container(
-              width: double.infinity,
-              height: 110.0,
-              decoration: BoxDecoration(
-                color: topColor ?? Theme.of(context).appBarTheme.backgroundColor,
-                image: topImage == false
-                    ? null
-                    : const DecorationImage(
-                        image: AssetImage('lib/assets/images/earth.png'),
-                        fit: BoxFit.cover,
-                      ),
+    return DefaultTextStyle(
+      style: TextStyle(
+        color: Theme.of(context).textTheme.bodyText1?.color ?? Colors.black,
+      ),
+      child: Column(
+        children: <Widget>[
+          Stack(
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                height: 110.0,
+                decoration: BoxDecoration(
+                  color: topColor ?? Theme.of(context).appBarTheme.backgroundColor,
+                  image: topImage == false
+                      ? null
+                      : const DecorationImage(
+                          image: AssetImage('lib/assets/images/earth.png'),
+                          fit: BoxFit.cover,
+                        ),
+                ),
               ),
-            ),
-            Positioned(
-              top: 35.0,
-              left: 10.0,
-              child: SizedBox(
-                height: 35.0,
-                child: action ?? _back(context),
+              Positioned(
+                top: 35.0,
+                left: 10.0,
+                child: SizedBox(
+                  height: 35.0,
+                  child: action ?? _back(context),
+                ),
               ),
-            ),
-            Positioned.fill(
-              child: Align(
-                alignment: logoPosition,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: SizedBox(
-                    height: 86.0,
-                    child: Provider.of<LicenseService>(context).logo,
+              Positioned.fill(
+                child: Align(
+                  alignment: logoPosition,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: SizedBox(
+                      height: 86.0,
+                      child: Provider.of<LicenseService>(context).license.branding.logo,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-        Expanded(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
+            ],
+          ),
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                ),
+                child: body,
               ),
-              child: body,
             ),
           ),
-        ),
-        _copyright(context, bottomColor, bottomText),
-      ],
+          _copyright(context, bottomColor, bottomText),
+        ],
+      ),
     );
   }
 
@@ -96,6 +101,8 @@ class PageTemplate extends StatelessWidget {
   }
 
   Widget _copyright(BuildContext context, Color? bottomColor, String? bottomText) {
+    Color copyrightColor =
+        ThemeData.estimateBrightnessForColor(Theme.of(context).bottomAppBarColor) == Brightness.light ? Colors.black87 : Colors.white;
     return Container(
       width: double.infinity,
       height: 40.0,
@@ -103,8 +110,8 @@ class PageTemplate extends StatelessWidget {
       child: Center(
         child: Text(
           bottomText ?? 'Copyright © ${DateTime.now().year} Roma Technology Limited. All rights reserved.',
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: copyrightColor,
             fontSize: 12.0,
           ),
         ),

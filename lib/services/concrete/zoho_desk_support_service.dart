@@ -7,7 +7,7 @@
 
 import 'dart:convert';
 
-import 'package:revup/classes/no_support_service_exception.dart';
+import 'package:revup/classes/support_service_exception.dart';
 import 'package:revup/services/support_service.dart';
 import 'package:http/http.dart' as http;
 
@@ -39,7 +39,6 @@ class ZohoDeskSupportService extends SupportService {
         'Authorization': 'Zoho-oauthtoken $accessToken',
       },
     );
-    print(response.body);
   }
 
   Future<String> _getAccessToken() async {
@@ -53,13 +52,13 @@ class ZohoDeskSupportService extends SupportService {
           'grant_type': 'refresh_token',
           'redirect_uri': oauth['redirectUri'],
         },
-      );
+      ).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {
         return jsonDecode(response.body)['access_token'];
       }
-      throw NoSupportServiceException();
+      throw SupportServiceException('Unexpected response received from Support service. Code: ${response.statusCode}');
     } catch (e) {
-      throw NoSupportServiceException();
+      throw SupportServiceException('Unable to read data from Support service.');
     }
   }
 }

@@ -5,10 +5,12 @@
 //
 //************************************************************
 
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:revup/classes/no_license_exception.dart';
+import 'package:revup/classes/license_exception.dart';
 import 'package:revup/models/license.dart';
 import 'package:revup/models/profile.dart';
 import 'package:revup/services/auth_service.dart';
@@ -43,7 +45,7 @@ class HomeScreenState extends State<HomeScreen> {
           future: Future.wait([_authService.user, _licenseService.loadLicense()]),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
-              return snapshot.error is NoLicenseException ? const Text('No license') : PageError(error: snapshot.error.toString());
+              return snapshot.error is LicenseException ? const Text('No license') : PageError(error: snapshot.error.toString());
             } else if (snapshot.hasData) {
               List futures = snapshot.data as List;
               User? user = futures[0][0];
@@ -85,9 +87,13 @@ class HomeScreenState extends State<HomeScreen> {
                       logoPosition: user == null ? Alignment.center : Alignment.centerRight,
                     );
                   } else if (snapshot.hasError) {
-                    return const PageError(error: 'Unable to load application profile.');
+                    String message = '';
+                    if (snapshot.error is TimeoutException) {
+                      message = 'A service call has timed out. Please try again and report if the problem persists';
+                    }
+                    return PageError(error: 'Unable to load application profile. $message');
                   } else {
-                    return const PageWaiting(message: 'Please wait ... loading profile');
+                    return const PageWaiting(message: 'Please wait ... loading application profile');
                   }
                 },
               );

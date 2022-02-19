@@ -13,11 +13,16 @@ class PageError extends StatelessWidget {
         children: <Widget>[
           const Text('The following unexpected error has occurred:'),
           const SizedBox(height: 5.0),
-          Text(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Text(
             error,
+            maxLines: 2,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Theme.of(context).errorColor,
             ),
+          ),
           ),
           const SizedBox(height: 15.0),
           const Text('Please contact technical@romatech.co.uk'),

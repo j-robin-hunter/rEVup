@@ -15,7 +15,6 @@ import 'package:revup/widgets/chips_formfield.dart';
 import 'package:revup/widgets/color_picker_dialog.dart';
 import 'package:revup/widgets/error_dialog.dart';
 import 'package:revup/widgets/future_dialog.dart';
-import 'package:revup/widgets/padded_text_form_field.dart';
 import 'package:revup/widgets/service_dialog.dart';
 
 class AdminForm extends StatefulWidget {
@@ -55,7 +54,6 @@ class AdminFormState extends State<AdminForm> {
   @override
   Widget build(BuildContext context) {
     final LicenseService _licenseService = Provider.of<LicenseService>(context);
-    final Map<String, dynamic> serviceDefinitions = Provider.of<EnvironmentService>(context, listen: false).environment.services;
 
     if (_services.isEmpty) _buildServices(context, _services);
 
@@ -142,45 +140,47 @@ class AdminFormState extends State<AdminForm> {
   }
 
   void _buildServices(BuildContext context, Map services) {
-    final Map<String, dynamic> serviceDefinitions = Provider.of<EnvironmentService>(context, listen: false).environment.services;
+    final Map<String, dynamic> _services = Provider.of<EnvironmentService>(context, listen: false).environment.services;
+    final LicenseService _licenseService = Provider.of<LicenseService>(context);
 
-    for (var serviceType in serviceDefinitions.entries) {
-      String type = serviceType.key;
-      List<String> serviceSelection = [];
-      Map definition = {};
-      for (var service in serviceType.value) {
-        for (var entry in service.entries) {
-          for (var fields in service[entry.key].values) {
-            Map content = {};
-            (fields as Map).forEach((key, value) {
-              TextEditingController controller = TextEditingController();
-              content[key] = {
-                'controller': controller,
-                'widget': {
-                  'key': key,
-                  'value': value,
-                }
-              };
-            });
-            serviceSelection.add(entry.key);
-            definition[entry.key] = {
-              'dialogContent': content, //entry.value,
-              'data': 'data',
-            };
+    services.addAll(_services);
+    _services.forEach((serviceType, serviceTypeMap) {
+      (serviceTypeMap as Map).forEach((namedService, namedServiceMap) {
+        (namedServiceMap as Map).forEach((field, fieldEntry) {
+          Map? values;
+          switch (serviceType.toLowerCase()) {
+            case 'email':
+              values = _licenseService.license.emailService?.map;
+              break;
+            case 'cms':
+              values = _licenseService.license.cmsService?.map;
+              break;
+            case 'product':
+              values = {};
+              //values = _licenseService.license.productService?.map;
+              break;
+            case 'support':
+              values = {};
+              //values = _licenseService.license.supportService?.map;
+              break;
           }
-        }
-      }
-      services[type] = {
+          TextEditingController controller = TextEditingController();
+          controller.text = values?[field] ?? '';
+            (fieldEntry as Map)['controller'] = controller;
+        });
+      });
+      services[serviceType].addAll({
         'controller': TextEditingController(),
+        'formKey': GlobalKey<FormState>(),
         'adminRow': Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             Expanded(
               child: DropdownButtonFormField(
                 decoration: InputDecoration(
-                  label: Text('$type Service'),
+                  label: Text('$serviceType Service'),
                 ),
-                items: serviceSelection
+                items: [...services[serviceType].keys]
                     .map(
                       (item) => DropdownMenuItem<String>(
                         child: Text(
@@ -192,7 +192,7 @@ class AdminFormState extends State<AdminForm> {
                     )
                     .toList(),
                 onChanged: (String? value) {
-                  services[type]['controller']?.text = value ?? '';
+                  services[serviceType]['controller']?.text = value ?? '';
                 },
               ),
             ),
@@ -200,7 +200,7 @@ class AdminFormState extends State<AdminForm> {
               width: 120.0,
               child: TextButton(
                 onPressed: () {
-                  String namedService = services[type]['controller']!.text;
+                  String namedService = services[serviceType]['controller']!.text;
                   if (namedService.isEmpty) {
                     showDialog(
                       barrierDismissible: false,
@@ -215,10 +215,11 @@ class AdminFormState extends State<AdminForm> {
                       context: context,
                       builder: (BuildContext context) => ServiceDialog(
                         namedService: namedService,
-                        content: services[type]['service'],
+                        content: services[serviceType][namedService],
                       ),
                     ).then((value) {
                       print('do config');
+                      _licenseService.setServices(serviceType, namedService, services[serviceType][namedService]);
                     });
                   }
                 },
@@ -227,9 +228,9 @@ class AdminFormState extends State<AdminForm> {
             ),
           ],
         ),
-        'service': definition,
-      };
-    }
+        //'service': definition,
+      });
+    });
   }
 
   List<Widget> _servicesRows() {

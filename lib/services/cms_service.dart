@@ -5,7 +5,7 @@
 //
 //************************************************************
 
-import 'package:revup/classes/no_cms_service_exception.dart';
+import 'package:revup/classes/cms_service_exception.dart';
 import 'package:revup/models/cms_content.dart';
 
 import 'concrete/contentful_cms_service.dart';
@@ -23,7 +23,7 @@ abstract class CmsService {
           return ContentfulCmsService.fromMap(map);
       }
     }
-    throw NoCmsServiceException();
+    throw CmsServiceException('Encountered invalid CMS service definition data');
   }
 
   Map<String, dynamic> get map;

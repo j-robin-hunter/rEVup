@@ -6,9 +6,9 @@
 //************************************************************
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:revup/classes/no_cms_service_exception.dart';
-import 'package:revup/classes/no_email_service_exception.dart';
-import 'package:revup/classes/no_support_service_exception.dart';
+import 'package:revup/classes/cms_service_exception.dart';
+import 'package:revup/classes/email_service_exception.dart';
+import 'package:revup/classes/support_service_exception.dart';
 import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/email_service.dart';
 import 'package:revup/services/support_service.dart';
@@ -33,7 +33,8 @@ class License {
       'created': created,
       'updated': _updated,
     };
-    map['branding'] = (_branding.map);
+    map['branding'] = _branding.map;
+    if (_cmsService != null) map['cmsService'] = _cmsService?.map;
     //map.addAll(_emailService!.map);
     return map;
   }
@@ -48,7 +49,7 @@ class License {
       //if (map['branding'] != null) _branding = Branding.fromMap(map['branding']);
       try {
         setEmailService(EmailService.fromMap(map['emailService'] ?? {}));
-      } on NoEmailServiceException {
+      } on EmailServiceException {
         _emailService = null;
       } catch (ex) {
         throw Exception('Email service: ${ex.toString()}');
@@ -56,14 +57,14 @@ class License {
       try {
         setCmsService(CmsService.fromMap(map['cmsService'] ?? {}));
         _cmsService!.licensee = _licensee;
-      } on NoCmsServiceException {
+      } on CmsServiceException {
         _cmsService = null;
       } catch (ex) {
         throw Exception('CMS service: ${ex.toString()}');
       }
       try {
         setSupportService(SupportService.fromMap(map['supportService'] ?? {}));
-      } on NoSupportServiceException {
+      } on SupportServiceException {
         _supportService = null;
       } catch (ex) {
         throw Exception('Support service: ${ex.toString()}');

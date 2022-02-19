@@ -22,7 +22,7 @@ class EnvironmentService {
   Future<Environment> loadEnvironment() async {
     await _getEnvironment()
         .get()
-        .then((event) => _environment.setFromMap(event.docs.first.data()))
+        .then((event) => _environment.fromMap(event.docs.first.data()))
         .catchError((e) => throw Exception('Unable to load application environment'));
     return _environment;
   }

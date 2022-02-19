@@ -26,7 +26,7 @@ class PaddedTextFormField extends StatelessWidget {
     required this.controller,
     this.validator,
     this.labelText,
-    this.padding = const EdgeInsets.fromLTRB(0.0, 0, 0.0, 10.0),
+    this.padding = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.hintText,
     this.icon,

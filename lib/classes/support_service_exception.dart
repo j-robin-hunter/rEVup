@@ -5,5 +5,11 @@
 //
 //************************************************************
 
-class NoEnvironmentException implements Exception {
+class SupportServiceException implements Exception {
+  final String _cause;
+
+  SupportServiceException(this._cause);
+
+  @override
+  String toString() => _cause;
 }

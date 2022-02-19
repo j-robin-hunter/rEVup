@@ -8,8 +8,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:revup/classes/get_license_name.dart';
-import 'package:revup/classes/no_license_exception.dart';
+import 'package:revup/classes/license_exception.dart';
 import 'package:revup/models/license.dart';
+
+import 'cms_service.dart';
 
 class LicenseService extends ChangeNotifier {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
@@ -36,10 +38,10 @@ class LicenseService extends ChangeNotifier {
         _license.setFromMap(licenseData);
         _license.setId(event.docs.first.id);
       } else {
-        throw Exception('Missing licensing data.');
+        throw LicenseException('Missing licensing data.');
       }
     }).catchError((e) {
-      throw NoLicenseException();
+      throw LicenseException('Unable to load license data. ${e.toString()}');
     });
     return _license;
   }
@@ -49,7 +51,7 @@ class LicenseService extends ChangeNotifier {
     try {
       await _getLicenses().doc(_license.id).set(_license.map);
     } catch(e) {
-      // Todo
+      throw LicenseException('Unable to save license data.');
     }
   }
 
@@ -70,5 +72,21 @@ class LicenseService extends ChangeNotifier {
   void deleteThemeColor(String key) {
     _license.branding.deleteThemeColor(key);
     notifyListeners();
+  }
+
+  void setServices(String serviceType, String serviceName, Map map) {
+    Map<String, String> service = map.map((key, value) => MapEntry(key, value['controller'].text));
+    service['serviceName'] = serviceName;
+    switch(serviceType) {
+      case 'CMS':
+        _license.setCmsService(CmsService.fromMap(service));
+        break;
+      case 'Email':
+        break;
+      case 'Product':
+        break;
+      case 'Support':
+        break;
+    }
   }
 }

@@ -28,8 +28,7 @@ class AuthService extends ChangeNotifier {
       UserCredential credential = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
       return credential.user;
     } catch(e) {
-      // Todo
-      print(e);
+      throw AuthenticationException();
     }
   }
 
@@ -80,7 +79,7 @@ class AuthService extends ChangeNotifier {
       return credential.user;
     } catch (e) {
       // TODO
-      print('Error signInWithGoogle $e');
+      throw AuthenticationException();
     }
   }
 

@@ -97,8 +97,6 @@ class MailjetEmailService extends EmailService {
       }),
     );
     if (response.statusCode != 200) {
-      // todo
-      print(response.body.toString());
       throw Exception();
     }
 

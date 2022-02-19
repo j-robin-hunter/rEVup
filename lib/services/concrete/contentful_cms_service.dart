@@ -9,6 +9,7 @@ import 'dart:convert';
 
 import 'package:contentful_rich_text/contentful_rich_text.dart';
 import 'package:flutter/material.dart';
+import 'package:revup/classes/cms_service_exception.dart';
 import 'package:revup/models/cms_content.dart';
 import '../cms_service.dart';
 import 'package:http/http.dart';
@@ -39,13 +40,16 @@ class ContentfulCmsService extends CmsService {
   }
 
   @override
-  Map<String, dynamic> get map => {
-        'serviceName': serviceName,
-        'serviceApiUrl': serviceApiUrl,
-        'spaceId': spaceId,
-        'accessToken': accessToken,
-        'contentType': contentType,
-      };
+  Map<String, dynamic> get map {
+    Map<String, dynamic> _map = {
+      'serviceName': serviceName,
+      'serviceApiUrl': serviceApiUrl,
+      'spaceId': spaceId,
+      'accessToken': accessToken,
+      'contentType': contentType,
+    };
+    return _map;
+  }
 
   @override
   Future<void> loadCmsContent() async {
@@ -59,9 +63,9 @@ class ContentfulCmsService extends CmsService {
 
   Future<void> _getData(String url, String? filter) async {
     if (filter != null) url = '$url&$filter';
-    Response response = await get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      try {
+    try {
+      Response response = await get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+      if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
         Map assetUrls = {};
         List assets = jsonResponse['includes'] != null ? jsonResponse['includes']['Asset'] : [];
@@ -75,10 +79,11 @@ class ContentfulCmsService extends CmsService {
             item['fields']['mediaContent'] != null ? Image.network('https:${assetUrls[item['fields']['mediaContent']['sys']['id']]}') : null,
           );
         }
-      } catch (ex) {
-        throw Exception(ex);
+        return;
       }
+      throw CmsServiceException('Unexpected response received from CMS service. Code: ${response.statusCode}');
+    } catch (ex) {
+      throw CmsServiceException('Unable to read data from CMS service.');
     }
-    return;
   }
 }

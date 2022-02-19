@@ -5,7 +5,7 @@
 //
 //************************************************************
 
-import 'package:revup/classes/no_support_service_exception.dart';
+import 'package:revup/classes/support_service_exception.dart';
 import 'concrete/zoho_desk_support_service.dart';
 
 abstract class SupportService {
@@ -18,7 +18,7 @@ abstract class SupportService {
           return ZohoDeskSupportService.fromMap(map);
       }
     }
-    throw NoSupportServiceException();
+    throw SupportServiceException('Encountered invalid Support service definition data');
   }
 
   Future<void> createSupportTicket();

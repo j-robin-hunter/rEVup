@@ -5,5 +5,11 @@
 //
 //************************************************************
 
-class NoEmailServiceException implements Exception {
+class EmailServiceException implements Exception {
+  final String _cause;
+
+  EmailServiceException(this._cause);
+
+  @override
+  String toString() => _cause;
 }

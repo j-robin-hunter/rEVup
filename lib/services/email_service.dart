@@ -5,7 +5,7 @@
 //
 //************************************************************
 
-import 'package:revup/classes/no_email_service_exception.dart';
+import 'package:revup/classes/email_service_exception.dart';
 import 'package:revup/services/concrete/mailjet_email_service.dart';
 
 abstract class EmailService {
@@ -28,7 +28,7 @@ abstract class EmailService {
           return MailjetEmailService.fromMap(map);
       }
     }
-    throw NoEmailServiceException();
+    throw EmailServiceException('Encountered invalid Email service definition data');
   }
 
   Map<String, dynamic> get map;

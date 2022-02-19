@@ -64,6 +64,26 @@ class Validators {
     }
   }
 
+  static String? validatePositiveNumber(String? value) {
+    String pattern = r"^\d+$";
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value!)) {
+      return 'Please provide a valid number';
+    } else {
+      return null;
+    }
+  }
+
+  static String? validatePositiveNumberNotRequired(String? value) {
+    String pattern = r"^\d*$";
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value!)) {
+      return 'Please provide a valid number';
+    } else {
+      return null;
+    }
+  }
+
   static String? validatePassword(String? value) {
     RegExp lowerCase = RegExp(r"^(?=.*[a-z])");
     RegExp upperCase = RegExp(r"^(?=.*[A-Z])");
@@ -79,6 +99,26 @@ class Validators {
       return 'No numbers';
     } else if (!special.hasMatch(value)) {
       return 'No special characters: @\$!%*?&_~#';
+    } else {
+      return null;
+    }
+  }
+
+  static String? validateUrl(String? value) {
+    String pattern = r"^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)$";
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value!)) {
+      return 'Please provide a valid URL';
+    } else {
+      return null;
+    }
+  }
+
+  static String? validateUrlNotRequired(String? value) {
+    String pattern = r"^$|^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)$";
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value!)) {
+      return 'Please provide a valid URL';
     } else {
       return null;
     }

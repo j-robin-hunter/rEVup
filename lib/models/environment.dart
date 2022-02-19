@@ -5,29 +5,22 @@
 //
 //************************************************************
 
-import 'package:revup/classes/no_environment_exception.dart';
+import 'package:revup/classes/environment_exception.dart';
 
 class Environment {
-  final Map<String, dynamic> _serviceDefinitions = {};
+  final List<String> _products = [];
+  final Map<String, dynamic> _services = {};
 
-  void setFromMap(Map<String, dynamic> map) {
-    if (_serviceDefinitions.isEmpty) {
-      try {
-        for (var service in map['services'].keys.toList()) {
-          for (var element in map['services'][service]['services']) {
-            for (var key in element.keys) {
-              element[key].addAll(map['services']['email']);
-              element[key].remove('services');
-              if (!_serviceDefinitions.containsKey(service)) _serviceDefinitions[service] = [];
-              _serviceDefinitions[service].add({key: element});
-            }
-          }
-        }
-      } catch (e) {
-        throw NoEnvironmentException();
-      }
+  void fromMap(Map<String, dynamic> map) {
+    try {
+      if (_products.isEmpty) _products.addAll([...map['products']]);
+      if (_services.isEmpty) _services.addAll(map['services']);
+    } catch (e) {
+      throw EnvironmentException('Invalid system level environment data.');
     }
   }
 
-  Map<String,dynamic> get services => _serviceDefinitions;
+  Map<String, dynamic> get services => _services;
+
+  List<String> get products => _products;
 }

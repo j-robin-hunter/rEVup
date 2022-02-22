@@ -43,10 +43,10 @@ class License {
     try {
       _licensee = map['licensee'];
       _profile = map['profile'] ?? '';
-      if (map['created'] != null) created = (map['created'] as Timestamp).toDate();
       if (map['updated'] != null) _updated = (map['updated'] as Timestamp).toDate();
+      if (map['created'] != null) created = (map['created'] as Timestamp).toDate();
       setAdministrators(List.from(map['administrators'] ?? []));
-      //if (map['branding'] != null) _branding = Branding.fromMap(map['branding']);
+      if (map['branding'] != null) _branding.fromMap(map['branding']);
       try {
         setEmailService(EmailService.fromMap(map['emailService'] ?? {}));
       } on EmailServiceException {

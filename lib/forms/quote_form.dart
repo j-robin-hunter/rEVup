@@ -90,10 +90,8 @@ class QuoteFormState extends State<QuoteForm> {
 
   @override
   Widget build(BuildContext context) {
-    final firebaseStorageService = Provider.of<FirebaseStorageService>(context);
-
     _screenWidth = MediaQuery.of(context).size.width;
-    _cmsService = Provider.of<LicenseService>(context).license.cmsService;
+    _cmsService = Provider.of<LicenseService>(context).cmsService;
 
     return _isCompleted
         ? const Text('all done now')
@@ -116,7 +114,7 @@ class QuoteFormState extends State<QuoteForm> {
                       setState(() => _isCompleted = true);
                       _allImages.forEach((key, images) {
                         for (var image in images) {
-                          firebaseStorageService.uploadXfileImage('enquiry', _email.text, image);
+                          FirebaseStorageService.uploadXFileImage('enquiry', _email.text, image);
                         }
                       });
                       /*

@@ -67,7 +67,7 @@ class PageTemplate extends StatelessWidget {
                     padding: const EdgeInsets.all(10.0),
                     child: SizedBox(
                       height: 86.0,
-                      child: Provider.of<LicenseService>(context).license.branding.logo,
+                      child: Provider.of<LicenseService>(context).getImage('logo')['image'],
                     ),
                   ),
                 ),

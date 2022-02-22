@@ -39,7 +39,7 @@ class ImageUploader extends StatefulWidget {
 class ImageUploaderState extends State<ImageUploader> {
   @override
   Widget build(BuildContext context) {
-    CmsService cmsService = Provider.of<LicenseService>(context).license.cmsService!;
+    CmsService cmsService = Provider.of<LicenseService>(context).cmsService!;
 
     return Container(
       decoration: BoxDecoration(

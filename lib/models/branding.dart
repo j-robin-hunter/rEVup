@@ -9,18 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:revup/classes/create_material_color.dart';
 
 class Branding {
-  static const airSuperiorityBlue = 0xff579aba;
-  static const greenSheen = 0xff84c1c1;
-  static const midGrey = 0xff777777;
-  static const veryDarkGrey = 0xff2a2a2a;
-
-  String logoUrl = '';
-  Image logo = Image.asset('lib/assets/images/transparent.png');
-  String backgroundImageUrl = '';
   ThemeData _themeData = ThemeData.light();
   String _theme = 'light';
   final Map<String, Color?> _brandColors = {};
   final List<String> colors = [
+    'Canvas',
     'Text',
     'Primary',
     'Secondary Header',
@@ -43,13 +36,25 @@ class Branding {
     'Input Focused Border',
     'Input Focused Error Border',
   ];
+  final Map<String, Map<String, dynamic>> _brandImages = {
+    'logo': {
+      'name': 'Company\nLogo',
+      'image': Image.asset('lib/assets/images/transparent.png'),
+    },
+    'background': {
+      'name': 'Background\nImage',
+      'image': Image.asset('lib/assets/images/transparent.png'),
+    },
+  };
 
-  ImageProvider get getBackgroundImageUrl {
-    if (backgroundImageUrl.isNotEmpty) {
-      return NetworkImage(backgroundImageUrl);
-    } else {
-      return const AssetImage('lib/assets/images/earth.png');
+  Map<String, dynamic> getImage(String name) {
+    if (_brandImages.containsKey(name)) {
+      return _brandImages[name]!;
     }
+    return {
+      'name': 'Undefined\nImage',
+      'image': Image.asset('lib/assets/images/transparent.png'),
+    };
   }
 
   ThemeData get themeData => _themeData;
@@ -57,6 +62,8 @@ class Branding {
   String get theme => _theme;
 
   Map<String, Color?> get brandColors => _brandColors;
+
+  Map<String, dynamic> get brandImages => _brandImages;
 
   Map<String, dynamic> get map {
     Map<String, dynamic> _map = {
@@ -68,7 +75,29 @@ class Branding {
         _map['colors'][key] = color?.value;
       });
     }
+    _map['images'] = {};
+    _brandImages.forEach((key, value) {
+      if (value['ref'] != null) {
+        _map['images'][key] = value['ref'];
+      }
+    });
     return _map;
+  }
+
+  void fromMap(Map map) {
+    if (map['images'] != null) {
+      map['images'].forEach((key, value) {});
+    }
+
+    if (map['colors'] != null) {
+      map['colors'].forEach((key, value) {
+        if (colors.contains(key)) {
+          _brandColors[key] = Color(value);
+        }
+      });
+    }
+
+    setTheme(map['theme'] ?? 'light');
   }
 
   void setTheme(String theme) {
@@ -76,6 +105,7 @@ class Branding {
     Brightness brightness = Brightness.light;
     if (theme != 'light') brightness = Brightness.dark;
     _themeData = ThemeData(
+      canvasColor: _brandColors['Canvas'],
       brightness: brightness,
       primarySwatch: _brandColors['Primary'] != null ? createMaterialColor(_brandColors['Primary']!) : null,
       secondaryHeaderColor: _brandColors['Secondary Header'],
@@ -167,8 +197,9 @@ class Branding {
     setTheme(_themeData.brightness == Brightness.light ? 'light' : 'dark');
   }
 
-  void setLogoUrl(String value) {
-    logoUrl = value;
-    if (value.isNotEmpty) logo = Image.network(value);
+  void setImage(String key, Image image) {
+    _brandImages[key]!['image'] = image;
   }
+
+  void deleteImage(String key) {}
 }

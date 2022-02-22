@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:revup/forms/account_form.dart';
 import 'package:revup/forms/admin_form.dart';
 import 'package:revup/forms/profile_form.dart';
-import 'package:revup/models/license.dart';
 import 'package:revup/models/profile.dart';
 import 'package:revup/services/license_service.dart';
 import 'package:revup/services/profile_service.dart';
@@ -33,18 +32,20 @@ class SetupScreenState extends State<SetupScreen> {
     final ProfileService _profileService = Provider.of<ProfileService>(context);
     final LicenseService _licenseService = Provider.of<LicenseService>(context);
 
-    bool isAdmin = _licenseService.license.licensee == _profileService.profile.licencedTo &&
-        _licenseService.license.administrators.contains(_profileService.profile.email);
+    bool isAdmin = _licenseService.licensee == _profileService.profile.licencedTo &&
+        _licenseService.administrators.contains(_profileService.profile.email);
     return Scaffold(
       body: SafeArea(
         child: PageTemplate(
-          body: _setupScreenBody(_profileService.profile, _licenseService.license, isAdmin, parent),
+          body: _setupScreenBody(context, isAdmin, parent),
         ),
       ),
     );
   }
 
-  Widget _setupScreenBody(Profile profile, License license, bool isAdmin, String parent) {
+  Widget _setupScreenBody(BuildContext context, bool isAdmin, String parent) {
+    final Profile profile = Provider.of<ProfileService>(context).profile;
+
     List<Widget> tabs = [const Tab(text: 'Profile')];
     List<Widget> tabBarViews = [ProfileForm(profile: profile, callback: callback)];
 
@@ -54,7 +55,7 @@ class SetupScreenState extends State<SetupScreen> {
     }
     if (isAdmin) {
       tabs.add(const Tab(text: 'Admin'));
-      tabBarViews.add(AdminForm(license: license, callback: callback));
+      tabBarViews.add(const AdminForm());
     }
 
     return profile.email.isEmpty

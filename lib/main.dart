@@ -13,7 +13,6 @@ import 'package:provider/provider.dart';
 import 'package:revup/models/license.dart';
 import 'package:revup/screens/enquiry_screen.dart';
 import 'package:revup/screens/home_screen.dart';
-import 'package:revup/screens/initial_license_screen.dart';
 import 'package:revup/screens/license_key_screen.dart';
 import 'package:revup/screens/login_screen.dart';
 import 'package:revup/screens/not_started_screen.dart';
@@ -23,7 +22,6 @@ import 'package:revup/screens/register_screen.dart';
 import 'package:revup/services/auth_service.dart';
 import 'package:revup/services/environment_service.dart';
 import 'package:revup/services/license_service.dart';
-import 'package:revup/services/firebase_storage_service.dart';
 import 'package:revup/services/profile_service.dart';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -72,9 +70,6 @@ class MyAppState extends State<MyApp> {
         Provider<ProfileService>(
           create: (_) => ProfileService(),
         ),
-        Provider<FirebaseStorageService>(
-          create: (_) => FirebaseStorageService(),
-        ),
         ChangeNotifierProvider<LicenseService>(
           create: (_) => LicenseService(),
         ),
@@ -97,40 +92,32 @@ class TheApplication extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
           License license = snapshot.data[1] as License;
-          return license.created == null
-              ? MaterialApp(
-                  title: 'rEVup',
-                  theme: license.branding.themeData,
-                  initialRoute: '/',
-                  routes: {
-                    '/': (context) => const LicenseKeyScreen(),
-                    '/initialLicensee': (context) => const InitialLicenseScreen(),
-                  },
-                )
-              : MaterialApp(
-                  title: 'rEVup',
-                  theme: license.branding.themeData,
-                  localizationsDelegates: const [
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: const [
-                    Locale('en', ''),
-                  ],
-                  initialRoute: '/',
-                  //onGenerateRoute: (route) => onGenerateRoute(route),
-                  routes: {
-                    '/': (context) => const HomeScreen(),
-                    '/login': (context) => const LoginScreen(),
-                    '/enquiry': (context) => const EnquiryScreen(),
-                    '/quote': (context) => const QuoteScreen(),
-                    '/register': (context) => const RegisterScreen(),
-                    '/setup': (context) => const SetupScreen(),
-                  },
-                );
+          return MaterialApp(
+            title: 'rEVup',
+            theme: license.branding.themeData,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''),
+            ],
+            initialRoute: license.created == null ? '/licenseKey' : '/',
+            //onGenerateRoute: (route) => onGenerateRoute(route),
+            routes: {
+              '/': (context) => const HomeScreen(),
+              '/login': (context) => const LoginScreen(),
+              '/enquiry': (context) => const EnquiryScreen(),
+              '/quote': (context) => const QuoteScreen(),
+              '/register': (context) => const RegisterScreen(),
+              '/setup': (context) => const SetupScreen(),
+              '/licenseKey': (context) => const LicenseKeyScreen(),
+            },
+          );
         } else if (snapshot.hasError) {
           return MaterialApp(
+            title: 'rEVup',
             home: NotStartedScreen(error: snapshot.error.toString()),
           );
         } else {

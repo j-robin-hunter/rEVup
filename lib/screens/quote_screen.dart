@@ -26,6 +26,6 @@ class QuoteScreen extends StatelessWidget {
   }
 
   Widget _quoteScreenBody(LicenseService licenseService) {
-    return licenseService.license.licensee.isEmpty ? const Text('You are not authorised to access this page') : const QuoteForm();
+    return licenseService.licensee.isEmpty ? const Text('You are not authorised to access this page') : const QuoteForm();
   }
 }

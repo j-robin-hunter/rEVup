@@ -10,9 +10,34 @@ import 'package:provider/provider.dart';
 import 'package:revup/services/license_service.dart';
 import 'package:revup/widgets/padded_password_form_field.dart';
 import 'package:revup/widgets/page_template.dart';
+import '../classes/authentication_exception.dart';
+import '../forms/admin_form.dart';
+import '../services/auth_service.dart';
+import '../widgets/page_error.dart';
+import '../widgets/page_waiting.dart';
 
-class LicenseKeyScreen extends StatelessWidget {
+class LicenseKeyScreen extends StatefulWidget {
   const LicenseKeyScreen({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return LicenseKeyScreenState();
+  }
+}
+
+class LicenseKeyScreenState extends State<LicenseKeyScreen> {
+  final _licenseId = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _licenseId.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +48,9 @@ class LicenseKeyScreen extends StatelessWidget {
         child: PageTemplate(
           topImage: false,
           action: const SizedBox.shrink(),
-          body: _licenseKeyScreenBody(context, _licenseService.license.id ?? ''),
+          body: _licenseService.licenseId == _licenseId.text
+              ? _initialLicenseScreenBody(context)
+              : _licenseKeyScreenBody(context, _licenseService.licenseId ?? ''),
         ),
       ),
     );
@@ -31,7 +58,6 @@ class LicenseKeyScreen extends StatelessWidget {
 
   Widget _licenseKeyScreenBody(BuildContext context, String licenseId) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-    final _licenseId = TextEditingController();
 
     return Form(
       key: _formKey,
@@ -50,7 +76,7 @@ class LicenseKeyScreen extends StatelessWidget {
                 hintText: 'License ID',
                 controller: _licenseId,
                 validator: (value) {
-                  if (value != licenseId) {
+                  if (value != licenseId || value!.isEmpty) {
                     return 'Incorrect ID entered - check case';
                   }
                   return null;
@@ -66,7 +92,7 @@ class LicenseKeyScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    Navigator.pushNamed(context, '/initialLicensee');
+                    setState(() {});
                   }
                 },
                 child: const Text('Submit'),
@@ -75,6 +101,57 @@ class LicenseKeyScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _initialLicenseScreenBody(BuildContext context) {
+    final AuthService _authService = Provider.of<AuthService>(context, listen: false);
+    List<Widget> tabs = [const Tab(text: 'Admin')];
+    List<Widget> tabBarViews = [const AdminForm()];
+
+    return FutureBuilder(
+      future: _authService.signInAnonymously(),
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.hasData) {
+          return Container(
+            constraints: const BoxConstraints(
+              minWidth: 400,
+              maxWidth: 800,
+            ),
+            child: DefaultTabController(
+              length: tabs.length,
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    child: Align(
+                      child: TabBar(
+                        labelColor: Theme
+                            .of(context)
+                            .textTheme
+                            .bodyText1
+                            ?.color,
+                        tabs: tabs,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: tabBarViews,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return snapshot.error is AuthenticationException
+              ? const PageError(error: 'Database connection refused.')
+              : PageError(error: snapshot.error.toString());
+        } else {
+          return const PageWaiting(message: 'Please wait ... connecting to database');
+        }
+      },
     );
   }
 }

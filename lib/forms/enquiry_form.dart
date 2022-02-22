@@ -95,7 +95,7 @@ class EnquiryForm extends StatelessWidget {
                       barrierDismissible: false,
                       context: context,
                       builder: (BuildContext context) {
-                        return _submitEnquiryDialog(context, _licenseService.license.emailService!, _enquiry);
+                        return _submitEnquiryDialog(context, _licenseService.emailService!, _enquiry);
                       },
                     ).then((_) {
                       Navigator.pop(context);

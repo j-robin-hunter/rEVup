@@ -6,7 +6,6 @@
 //************************************************************
 
 import 'dart:convert';
-
 import 'package:revup/classes/support_service_exception.dart';
 import 'package:revup/services/support_service.dart';
 import 'package:http/http.dart' as http;

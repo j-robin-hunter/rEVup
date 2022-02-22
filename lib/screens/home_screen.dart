@@ -58,6 +58,7 @@ class HomeScreenState extends State<HomeScreen> {
                   if (snapshot.hasData) {
                     List future = snapshot.data as List;
                     Profile profile = future[0] as Profile;
+                    /*
                     if (profile.licencedTo.isNotEmpty) {
                       List<String> licensedToList = profile.licencedTo.split(RegExp(r",\s*"));
                       if (user != null && licensedToList.length > 1 && !switched) {
@@ -73,13 +74,17 @@ class HomeScreenState extends State<HomeScreen> {
                             setState(() => switched = true);
                           }).catchError((e) {
                             showDialog(
-                                barrierDismissible: false, context: context, builder: (context) => ErrorDialog(error: 'Cannot change partner: $e'));
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (context) => ErrorDialog(error: 'Cannot change partner: $e'),
+                            );
                           });
                         });
                       }
                     } else {
+                     */
                       profile.setLicensedTo(license.licensee);
-                    }
+                    //}
                     return PageTemplate(
                       action: user == null || user.emailVerified == false ? const SizedBox.shrink() : _welcome(context, profile),
                       body: _homeBodyScreen(context, user, license, profile, _authService),
@@ -87,11 +92,7 @@ class HomeScreenState extends State<HomeScreen> {
                       logoPosition: user == null ? Alignment.center : Alignment.centerRight,
                     );
                   } else if (snapshot.hasError) {
-                    String message = '';
-                    if (snapshot.error is TimeoutException) {
-                      message = 'A service call has timed out. Please try again and report if the problem persists';
-                    }
-                    return PageError(error: 'Unable to load application profile. $message');
+                    return PageError(error: 'Unable to load application profile. ${snapshot.error}');
                   } else {
                     return const PageWaiting(message: 'Please wait ... loading application profile');
                   }
@@ -119,7 +120,7 @@ class HomeScreenState extends State<HomeScreen> {
             Radius.circular(5.0),
           ),
           image: DecorationImage(
-            image: license.branding.getBackgroundImageUrl,
+            image: license.branding.getImage('background')['image'].image,
             fit: BoxFit.cover,
           ),
         ),
@@ -177,7 +178,6 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                  const Padding(padding: EdgeInsets.only(bottom: 8.0), child: Text('Licensee initial setup.')),
                   SizedBox(
                     width: double.infinity,
                     height: 36.0,

@@ -8,6 +8,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:revup/classes/cms_service_exception.dart';
 import 'package:revup/classes/email_service_exception.dart';
+import 'package:revup/classes/license_exception.dart';
 import 'package:revup/classes/support_service_exception.dart';
 import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/email_service.dart';
@@ -18,8 +19,7 @@ import 'branding.dart';
 class License {
   String? _id;
   String _licensee = '';
-  String _profile = '';
-  List<String> _administrators = [];
+  String _profileId = '';
   final Branding _branding = Branding();
   EmailService? _emailService;
   CmsService? _cmsService;
@@ -30,22 +30,26 @@ class License {
   Map<String, dynamic> get map {
     Map<String, dynamic> map = {
       'licensee': _licensee,
+      'profileId': _profileId,
       'created': created,
       'updated': _updated,
     };
     map['branding'] = _branding.map;
     if (_cmsService != null) map['cmsService'] = _cmsService?.map;
-    //map.addAll(_emailService!.map);
+    if (_emailService != null) map['emailService'] = _emailService?.map;
     return map;
   }
 
   void setFromMap(Map<String, dynamic> map) {
     try {
       _licensee = map['licensee'];
-      _profile = map['profile'] ?? '';
+      _profileId = map['profileId'] ?? '';
       if (map['updated'] != null) _updated = (map['updated'] as Timestamp).toDate();
-      if (map['created'] != null) created = (map['created'] as Timestamp).toDate();
-      setAdministrators(List.from(map['administrators'] ?? []));
+      if (map['created'] != null) {
+        created = (map['created'] as Timestamp).toDate();
+      } else {
+        throw LicenseException('No active license');
+      }
       if (map['branding'] != null) _branding.fromMap(map['branding']);
       try {
         setEmailService(EmailService.fromMap(map['emailService'] ?? {}));
@@ -78,9 +82,7 @@ class License {
 
   String get licensee => _licensee;
 
-  String get profile => _profile;
-
-  List<String> get administrators => _administrators;
+  String get profileId => _profileId;
 
   Branding get branding => _branding;
 
@@ -97,8 +99,8 @@ class License {
     _updated = DateTime.now();
   }
 
-  setProfile(String value) {
-    _profile = value;
+  setProfileId(String value) {
+    _profileId = value;
     _updated = DateTime.now();
   }
 
@@ -117,17 +119,12 @@ class License {
     _updated = DateTime.now();
   }
 
-  setAdministrators(List<String> value) {
-    _administrators = value;
-    _updated = DateTime.now();
-  }
-
   setId(String value) {
     _id = value;
     _updated = DateTime.now();
   }
 
-  /*
+/*
   setCreated(DateTime value) {
     _created = value;
     _updated = value;

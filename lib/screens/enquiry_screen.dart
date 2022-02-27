@@ -54,7 +54,7 @@ class EnquiryScreen extends StatelessWidget {
                 ),
               ),
               Container(
-                height: 400.0,
+                height: 420.0,
                 constraints: const BoxConstraints(
                   minWidth: 400,
                   maxWidth: 800,

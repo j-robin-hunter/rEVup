@@ -12,7 +12,6 @@ import 'package:revup/classes/get_license_name.dart';
 import 'package:revup/classes/license_exception.dart';
 import 'package:revup/models/license.dart';
 import 'package:revup/services/support_service.dart';
-
 import 'cms_service.dart';
 import 'email_service.dart';
 import 'firebase_storage_service.dart';
@@ -26,15 +25,13 @@ class LicenseService extends ChangeNotifier {
     return _firebaseFirestore.collection('licenses');
   }
 
-  //License get license => _license;
-
   Future<License> loadLicense([String licensee = '']) async {
-    if (_license.licensee.isNotEmpty) {
+    if (_license.created != null) {
       if (licensee.isEmpty || licensee == _license.licensee) {
         return _license;
       }
     }
-    if (licensee.isEmpty)  licensee = await GetLicenseName.licensee;
+    if (licensee.isEmpty) licensee = await GetLicenseName.licensee;
 
     await _getLicenses().where('licensee', isEqualTo: licensee).get().then((event) {
       if (event.docs.isNotEmpty) {
@@ -55,16 +52,27 @@ class LicenseService extends ChangeNotifier {
     return _license;
   }
 
+  Future<License> reLoadLicense() async {
+    _license.created = null;
+    _license.branding.brandImages.forEach((key, value) {
+      _license.branding.setImage(key, Image.asset('lib/assets/images/transparent.png'));
+    });
+    await loadLicense();
+    setTheme(getTheme());
+    return _license;
+  }
+
   String? get licenseId => _license.id;
 
   String get licensee => _license.licensee;
 
   DateTime? get created => _license.created;
 
-  List<String> get administrators => _license.administrators;
+  String get profileId => _license.profileId;
+
+  void setProfileId(String value) => _license.setProfileId(value);
 
   Future<void> saveLicense() async {
-    _license.created ??= DateTime.now();
     try {
       _license.branding.brandImages.forEach((key, value) async {
         var image = _license.branding.brandImages[key]['image'].image;
@@ -74,7 +82,7 @@ class LicenseService extends ChangeNotifier {
         }
       });
       await _getLicenses().doc(_license.id).set(_license.map);
-    } catch(e) {
+    } catch (e) {
       throw LicenseException('Unable to save license data.');
     }
   }
@@ -122,11 +130,12 @@ class LicenseService extends ChangeNotifier {
   void setService(String serviceType, String serviceName, Map map) {
     Map<String, String> service = map.map((key, value) => MapEntry(key, value['controller'].text));
     service['serviceName'] = serviceName;
-    switch(serviceType) {
+    switch (serviceType) {
       case 'CMS':
         _license.setCmsService(CmsService.fromMap(service));
         break;
       case 'Email':
+        _license.setEmailService(EmailService.fromMap(service));
         break;
       case 'Product':
         break;
@@ -143,10 +152,10 @@ class LicenseService extends ChangeNotifier {
         return _license.cmsService?.map;
       case 'product':
         return {};
-        //values = _licenseService.license.productService?.map;
+      //values = _licenseService.license.productService?.map;
       case 'support':
         return {};
-        //values = _licenseService.license.supportService?.map;
+      //values = _licenseService.license.supportService?.map;
     }
     return null;
   }
@@ -156,5 +165,4 @@ class LicenseService extends ChangeNotifier {
   CmsService? get cmsService => _license.cmsService;
 
   SupportService? get supportService => _license.supportService;
-
 }

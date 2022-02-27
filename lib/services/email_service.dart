@@ -10,15 +10,9 @@ import 'package:revup/services/concrete/mailjet_email_service.dart';
 
 abstract class EmailService {
   final String serviceApiUrl;
-  final String emailFromName;
-  final String enquiryEmailSubject;
-  final String enquiryToEmail;
 
   EmailService({
     required this.serviceApiUrl,
-    required this.emailFromName,
-    required this.enquiryEmailSubject,
-    required this.enquiryToEmail,
   });
 
   factory EmailService.fromMap(Map<String, dynamic> map) {

@@ -31,9 +31,11 @@ class PageTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final LicenseService _licenseService = Provider.of<LicenseService>(context);
+
     return DefaultTextStyle(
       style: TextStyle(
-        color: Theme.of(context).textTheme.bodyText1?.color ?? Colors.black,
+        color: Theme.of(context).appBarTheme.foregroundColor,
       ),
       child: Column(
         children: <Widget>[
@@ -46,8 +48,8 @@ class PageTemplate extends StatelessWidget {
                   color: topColor ?? Theme.of(context).appBarTheme.backgroundColor,
                   image: topImage == false
                       ? null
-                      : const DecorationImage(
-                          image: AssetImage('lib/assets/images/earth.png'),
+                      : DecorationImage(
+                          image: _licenseService.getImage('background')['image'].image,
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -96,7 +98,7 @@ class PageTemplate extends StatelessWidget {
       onPressed: () {
         Navigator.pop(context);
       },
-      icon: const Icon(Icons.arrow_back, color: Colors.white),
+      icon: Icon(Icons.arrow_back, color: Theme.of(context).appBarTheme.foregroundColor),
     );
   }
 

@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:revup/models/license.dart';
 import 'package:revup/screens/enquiry_screen.dart';
 import 'package:revup/screens/home_screen.dart';
-import 'package:revup/screens/license_key_screen.dart';
+import 'package:revup/screens/license_screen.dart';
 import 'package:revup/screens/login_screen.dart';
 import 'package:revup/screens/not_started_screen.dart';
 import 'package:revup/screens/quote_screen.dart';
@@ -103,7 +103,7 @@ class TheApplication extends StatelessWidget {
             supportedLocales: const [
               Locale('en', ''),
             ],
-            initialRoute: license.created == null ? '/licenseKey' : '/',
+            initialRoute: license.profileId.isEmpty ? '/licenseKey' : '/',
             //onGenerateRoute: (route) => onGenerateRoute(route),
             routes: {
               '/': (context) => const HomeScreen(),
@@ -112,7 +112,7 @@ class TheApplication extends StatelessWidget {
               '/quote': (context) => const QuoteScreen(),
               '/register': (context) => const RegisterScreen(),
               '/setup': (context) => const SetupScreen(),
-              '/licenseKey': (context) => const LicenseKeyScreen(),
+              '/licenseKey': (context) => const LicenseScreen(),
             },
           );
         } else if (snapshot.hasError) {

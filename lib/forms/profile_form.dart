@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:revup/classes/validators.dart';
 import 'package:revup/extensions/string_casing_extension.dart';
 import 'package:revup/models/profile.dart';
+import 'package:revup/screens/license_screen.dart';
 import 'package:revup/services/auth_service.dart';
 import 'package:revup/services/profile_service.dart';
 import 'package:revup/widgets/future_dialog.dart';
@@ -17,10 +18,9 @@ import 'package:revup/widgets/padded_password_form_field.dart';
 import 'package:revup/widgets/padded_text_form_field.dart';
 
 class ProfileForm extends StatefulWidget {
-  final Profile profile;
   final Function callback;
 
-  const ProfileForm({Key? key, required this.profile, required this.callback}) : super(key: key);
+  const ProfileForm({Key? key, required this.callback}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -31,6 +31,8 @@ class ProfileForm extends StatefulWidget {
 class ProfileFormState extends State<ProfileForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _resetKey = GlobalKey<FormState>();
+
+  late Profile _profile;
 
   final _name = TextEditingController();
   final _email = TextEditingController();
@@ -47,15 +49,6 @@ class ProfileFormState extends State<ProfileForm> {
   @override
   void initState() {
     super.initState();
-    _name.text = widget.profile.name;
-    _email.text = widget.profile.email;
-    _companyName.text = widget.profile.company;
-    _streetAddressOne.text = widget.profile.addressOne;
-    _streetAddressTwo.text = widget.profile.addressTwo;
-    _city.text = widget.profile.city;
-    _county.text = widget.profile.county;
-    _postcode.text = widget.profile.postcode;
-    _phone.text = widget.profile.phone;
   }
 
   @override
@@ -73,10 +66,26 @@ class ProfileFormState extends State<ProfileForm> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _profile = Provider.of<ProfileService>(context).profile;
+    _name.text = _profile.name;
+    _email.text = _profile.email;
+    _companyName.text = _profile.company;
+    _streetAddressOne.text = _profile.addressOne;
+    _streetAddressTwo.text = _profile.addressTwo;
+    _city.text = _profile.city;
+    _county.text = _profile.county;
+    _postcode.text = _profile.postcode;
+    _phone.text = _profile.phone;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final AuthService _authService = Provider.of<AuthService>(context);
 
     _name.addListener(() => _name.value = _name.value.copyWith(text: _name.text.toLowerCase().toTitleCase()));
+    _email.addListener(() => _email.value = _email.value.copyWith(text: _email.text.toLowerCase()));
     _companyName.addListener(() => _companyName.value = _companyName.value.copyWith(text: _companyName.text.toLowerCase().toTitleCase()));
     _streetAddressOne
         .addListener(() => _streetAddressOne.value = _streetAddressOne.value.copyWith(text: _streetAddressOne.text.toLowerCase().toTitleCase()));
@@ -91,8 +100,9 @@ class ProfileFormState extends State<ProfileForm> {
       child: Form(
         key: _formKey,
         onChanged: () {
-          setState(() => changed = true);
-          widget.callback('changed');
+          if (!changed) {
+            setState(() => changed = true);
+          }
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -100,10 +110,10 @@ class ProfileFormState extends State<ProfileForm> {
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(bottom: 20.0),
-              child: Text('Account type: ${widget.profile.type}'),
+              child: Text('Account type: ${_profile.type}'),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setName(value!),
+              onSaved: (value) => _profile.setName(value!),
               controller: _name,
               validator: Validators.validateNotEmpty,
               labelText: 'Name',
@@ -111,7 +121,7 @@ class ProfileFormState extends State<ProfileForm> {
               floatingLabelBehavior: FloatingLabelBehavior.always,
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setEmail(value!),
+              onSaved: (value) => _profile.setEmail(value!),
               // Cannot be null due to validator
               controller: _email,
               validator: Validators.validateEmail,
@@ -120,106 +130,107 @@ class ProfileFormState extends State<ProfileForm> {
               floatingLabelBehavior: FloatingLabelBehavior.always,
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setCompany(value!),
+              onSaved: (value) => _profile.setCompany(value!),
               labelText: 'Company Name',
               controller: _companyName,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setAddressOne(value!),
+              onSaved: (value) => _profile.setAddressOne(value!),
               labelText: 'Address',
               hintText: 'Address',
               controller: _streetAddressOne,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setAddressTwo(value!),
+              onSaved: (value) => _profile.setAddressTwo(value!),
               controller: _streetAddressTwo,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setCity(value!),
+              onSaved: (value) => _profile.setCity(value!),
               labelText: 'City',
               hintText: 'City',
               controller: _city,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setCounty(value!),
+              onSaved: (value) => _profile.setCounty(value!),
               labelText: 'County',
               hintText: 'County',
               controller: _county,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setPostcode(value!),
+              onSaved: (value) => _profile.setPostcode(value!),
               labelText: 'Postcode',
               hintText: 'Your postcode',
               controller: _postcode,
               validator: Validators.validatePostcodeNotRequired,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             PaddedTextFormField(
-              onSaved: (value) => widget.profile.setPhone(value!),
+              onSaved: (value) => _profile.setPhone(value!),
               labelText: 'Phone',
               hintText: 'Your phone number',
               controller: _phone,
               validator: Validators.validatePhoneNotRequired,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: Row(
                 children: <Widget>[
+                  _authService.currentUser != null && !_authService.currentUser!.isAnonymous
+                      ? Expanded(
+                          child: SizedBox(
+                            height: 36.0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return _passwordResetDialog(context, _profile);
+                                    },
+                                  );
+                                },
+                                child: const Text('Reset Password'),
+                              ),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                   Expanded(
                     child: SizedBox(
-                      height: 40.0,
+                      height: 36.0,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          showDialog(
-                            barrierDismissible: false,
-                            context: context,
-                            builder: (BuildContext context) {
-                              return _passwordResetDialog(context);
-                            },
-                          );
-                        },
-                        child: const Text('Reset Password'),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: SizedBox(
-                      height: 40.0,
-                      child: ElevatedButton(
-                          child: const Text('OK'),
-                          onPressed: changed == false
-                              ? null
-                              : () {
-                                  if (_email.text != widget.profile.email) {
-                                    showDialog(
-                                        barrierDismissible: false,
-                                        context: context,
-                                        builder: (BuildContext context) {
-                                          return _emailResetDialog(context);
-                                        }).then((password) {
-                                      if (password != null) {
-                                        _authService.updateUserEmail(_email.text, password);
-                                        _saveProfile(context);
-                                      }
-                                    }).catchError((error) {
-                                      showDialog(
-                                          barrierDismissible: false,
-                                          context: context,
-                                          builder: (BuildContext context) {
-                                            return const Dialog(); //ErrorDialog(error: 'Unable to change account email. ${error.toString()}');
-                                          });
+                        child: changed == false ? const Text('Done') : const Text('Save'),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            if (!changed) {
+                              _setFormDone();
+                            } else if (_profile.id.isNotEmpty && _email.text != _profile.email) {
+                              showDialog(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return _emailResetDialog(context);
+                                  }).then((password) {
+                                if (password != null) {
+                                  _authService.updateUserEmail(_email.text, password);
+                                  _saveProfile(context, _profile);
+                                  _setFormDone();
+                                }
+                              }).catchError((error) {
+                                showDialog(
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return const Dialog();
                                     });
-                                  } else {
-                                    _saveProfile(context);
-                                  }
-                                }),
+                              });
+                            } else {
+                              _saveProfile(context, _profile);
+                            }
+                          }
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -231,8 +242,9 @@ class ProfileFormState extends State<ProfileForm> {
     );
   }
 
-  Widget _passwordResetDialog(BuildContext context) {
+  Widget _passwordResetDialog(BuildContext context, Profile profile) {
     AuthService _auth = Provider.of<AuthService>(context);
+
     return AlertDialog(
       title: const Text(
         'Password Reset',
@@ -265,7 +277,7 @@ class ProfileFormState extends State<ProfileForm> {
         TextButton(
             child: const Text('Reset'),
             onPressed: () {
-              _auth.resetPasswordRequest(widget.profile.email);
+              _auth.resetPasswordRequest(profile.email);
               _auth.signOut();
               Navigator.pushNamed(context, '/');
             }),
@@ -347,8 +359,8 @@ class ProfileFormState extends State<ProfileForm> {
     return null;
   }
 
-  void _saveProfile(BuildContext context) {
-    final ProfileService _profileService = Provider.of<ProfileService>(context, listen:false);
+  void _saveProfile(BuildContext context, Profile profile) {
+    final ProfileService _profileService = Provider.of<ProfileService>(context, listen: false);
     _formKey.currentState!.save();
     showDialog(
       barrierDismissible: false,
@@ -356,7 +368,7 @@ class ProfileFormState extends State<ProfileForm> {
       builder: (BuildContext context) {
         return FutureDialog(
           future: Future.wait([
-            _profileService.saveProfile(widget.profile),
+            _profileService.saveProfile(profile),
             Future.delayed(const Duration(seconds: 1), () => 0), // to allow dialog to be seen
           ]),
           waitingString: 'Saving profile ...',
@@ -370,8 +382,11 @@ class ProfileFormState extends State<ProfileForm> {
         );
       },
     ).then((_) {
-      widget.callback('done');
       setState(() => changed = false);
     }); // leave settings if save is OK
+  }
+
+  void _setFormDone() {
+    widget.callback(AdminStep.profile);
   }
 }

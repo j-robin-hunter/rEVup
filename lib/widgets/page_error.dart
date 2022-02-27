@@ -13,15 +13,19 @@ class PageError extends StatelessWidget {
     return FutureBuilder(
       future: DefaultAssetBundle.of(context).loadString('lib/assets/support.json'),
       builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-        // Execute this no matter what future outcome
-        String supportEmail = '';
-        String supportPhone = '';
-        if (snapshot.data != null) {
-          Map<String, dynamic> jsonData = jsonDecode(snapshot.data!);
-          supportEmail = jsonData['email'];
-          supportPhone = jsonData['phone'];
+        if (snapshot.hasError || snapshot.hasData) {
+          // Execute this no matter what future outcome
+          String supportEmail = '';
+          String supportPhone = '';
+          if (snapshot.data != null) {
+            Map<String, dynamic> jsonData = jsonDecode(snapshot.data!);
+            supportEmail = jsonData['email'];
+            supportPhone = jsonData['phone'];
+          }
+          return _pageError(context, supportEmail, supportPhone);
+        } else {
+          return const SizedBox.shrink();
         }
-        return _pageError(context, supportEmail, supportPhone);
       },
     );
   }

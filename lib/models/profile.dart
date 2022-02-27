@@ -6,7 +6,7 @@
 //************************************************************
 
 class Profile {
-  String licencedTo;
+  String licensedTo;
   String email;
   String name;
   String type;
@@ -19,12 +19,12 @@ class Profile {
   String country;
   String phone;
   String photoUrl;
-  String? id;
+  String id;
   DateTime? created;
   DateTime? updated;
 
   Profile({
-    this.licencedTo = '',
+    this.licensedTo = '',
     this.email = '',
     this.name = '',
     this.type = '',
@@ -37,6 +37,7 @@ class Profile {
     this.country = '',
     this.phone = '',
     this.photoUrl = '',
+    this.id = '',
   }) {
     updated = DateTime.now();
     created = DateTime.now();
@@ -44,7 +45,7 @@ class Profile {
 
   Map<String, dynamic> get map {
     return {
-      'licencedTo': licencedTo,
+      'licencedTo': licensedTo,
       'email': email,
       'name': name,
       'type': type,
@@ -63,7 +64,7 @@ class Profile {
   }
 
   void setFromMap(Map<String, dynamic> map) {
-    licencedTo = map['licencedTo'] ?? '';
+    licensedTo = map['licensedTo'] ?? '';
     name = map['name'] ?? '';
     email = map['email'];
     company = map['company'] ?? '';
@@ -85,7 +86,7 @@ class Profile {
   }
 
   setLicensedTo(String value) {
-    licencedTo = value;
+    licensedTo = value;
     updated = DateTime.now();
   }
 
@@ -94,7 +95,7 @@ class Profile {
     updated = DateTime.now();
   }
 
-  setId(String? value) {
+  setId(String value) {
     id = value;
     updated = DateTime.now();
   }

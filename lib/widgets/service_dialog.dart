@@ -100,14 +100,14 @@ class ServiceDialog extends StatelessWidget {
                     children: <Widget>[
                       TextButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pop(context, false);
                         },
                         child: const Text('Cancel'),
                       ),
                       TextButton(
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
-                            Navigator.pop(context);
+                            Navigator.pop(context, true);
                           }
                         },
                         child: const Text('OK'),

@@ -14,9 +14,11 @@ class AuthService extends ChangeNotifier {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
+  User? get currentUser => _firebaseAuth.currentUser;
+
   Future<List> get user async {
     List list = [];
-    User? user = _firebaseAuth.currentUser;
+    User? user = currentUser;
     user ??= await _firebaseAuth.authStateChanges().first;
     list.add(user);
     return list;
@@ -59,6 +61,12 @@ class AuthService extends ChangeNotifier {
       return credential.user;
     } catch(e) {
       throw AuthenticationException();
+    }
+  }
+
+  void deleteAnonymousUer(User? user) {
+    if (user != null && user.isAnonymous) {
+      user.delete();
     }
   }
 

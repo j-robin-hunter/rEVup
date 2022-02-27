@@ -16,7 +16,6 @@ import 'package:revup/models/profile.dart';
 import 'package:revup/services/auth_service.dart';
 import 'package:revup/services/license_service.dart';
 import 'package:revup/services/profile_service.dart';
-import 'package:revup/widgets/error_dialog.dart';
 import 'package:revup/widgets/page_error.dart';
 import 'package:revup/widgets/page_template.dart';
 import 'package:revup/widgets/page_waiting.dart';
@@ -231,11 +230,11 @@ class HomeScreenState extends State<HomeScreen> {
           profile.name.isNotEmpty
               ? Text(
                   'Hi ${profile.name}',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).appBarTheme.foregroundColor),
                 )
               : Text(
                   'Hi ${profile.email}',
-                  style: const TextStyle(color: Colors.white),
+                  style: TextStyle(color: Theme.of(context).appBarTheme.foregroundColor),
                 ),
         ],
       ),
@@ -271,6 +270,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /*
   Widget _selectLicensee(BuildContext context, String licensee, List<String> licensedToList) {
     return AlertDialog(
       title: const Text(
@@ -321,4 +321,6 @@ class HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+
+   */
 }

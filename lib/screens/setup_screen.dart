@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:revup/forms/account_form.dart';
 import 'package:revup/forms/admin_form.dart';
+import 'package:revup/forms/email_templates_form.dart';
 import 'package:revup/forms/profile_form.dart';
 import 'package:revup/models/profile.dart';
 import 'package:revup/services/license_service.dart';
@@ -25,15 +26,14 @@ class SetupScreen extends StatefulWidget {
 }
 
 class SetupScreenState extends State<SetupScreen> {
-  String parent = 'not changed';
+  Map parent = {};
 
   @override
   Widget build(BuildContext context) {
     final ProfileService _profileService = Provider.of<ProfileService>(context);
     final LicenseService _licenseService = Provider.of<LicenseService>(context);
 
-    bool isAdmin = _licenseService.licensee == _profileService.profile.licencedTo &&
-        _licenseService.administrators.contains(_profileService.profile.email);
+    bool isAdmin = _licenseService.profileId == _profileService.profile.id;
     return Scaffold(
       body: SafeArea(
         child: PageTemplate(
@@ -43,19 +43,21 @@ class SetupScreenState extends State<SetupScreen> {
     );
   }
 
-  Widget _setupScreenBody(BuildContext context, bool isAdmin, String parent) {
+  Widget _setupScreenBody(BuildContext context, bool isAdmin, Map parent) {
     final Profile profile = Provider.of<ProfileService>(context).profile;
 
     List<Widget> tabs = [const Tab(text: 'Profile')];
-    List<Widget> tabBarViews = [ProfileForm(profile: profile, callback: callback)];
+    List<Widget> tabBarViews = [ProfileForm(callback: callback)];
 
     if (profile.type == 'Installer' || profile.type == 'Administrator') {
-      tabs.add(const Tab(text: 'Account'));
+      tabs.add(const Tab(text: 'Account',));
       tabBarViews.add(const AccountForm());
     }
     if (isAdmin) {
       tabs.add(const Tab(text: 'Admin'));
-      tabBarViews.add(const AdminForm());
+      tabBarViews.add(AdminForm(callback: callback));
+      tabs.add(const Tab(text: 'Email Templates'));
+      tabBarViews.add(EmailTemplateForm(callback: callback));
     }
 
     return profile.email.isEmpty
@@ -74,6 +76,7 @@ class SetupScreenState extends State<SetupScreen> {
                     child: Align(
                       child: TabBar(
                         tabs: tabs,
+                        labelColor: Theme.of(context).textTheme.bodyText1!.color,
                       ),
                     ),
                   ),
@@ -88,7 +91,7 @@ class SetupScreenState extends State<SetupScreen> {
           );
   }
 
-  void callback(String value) {
+  void callback(Map value) {
     print(value);
     setState(() => parent = value);
   }

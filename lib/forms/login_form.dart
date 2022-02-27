@@ -60,19 +60,19 @@ class LoginFormState extends State<LoginForm> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text(
+                Text(
                   'Sign in',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).textTheme.bodyText1!.color,
                     fontSize: 18.0,
                   ),
                 ),
                 Row(
                   children: <Widget>[
-                    const Text(
+                    Text(
                       'or',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).textTheme.bodyText1!.color,
                         //fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -135,12 +135,12 @@ class LoginFormState extends State<LoginForm> {
               ),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 10.0),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
             child: Text(
               'or',
               style: TextStyle(
-                color: Colors.white,
+                color: Theme.of(context).textTheme.bodyText1!.color,
               ),
             ),
           ),
@@ -166,10 +166,10 @@ class LoginFormState extends State<LoginForm> {
                   });
                 },
               ),
-              const Text(
+              Text(
                 'Remember me',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).textTheme.bodyText1!.color,
                 ),
               ),
               Expanded(child: Container()),

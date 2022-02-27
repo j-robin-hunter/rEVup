@@ -8,7 +8,6 @@
 import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 
 class FirebaseStorageService {
   static Future<Reference> uploadXFileImage(String root, String owner, XFile image) async {

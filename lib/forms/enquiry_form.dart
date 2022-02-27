@@ -66,7 +66,7 @@ class EnquiryForm extends StatelessWidget {
               hintText: 'Your phone number',
               controller: _phone,
               validator: Validators.validatePhone,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
             ),
             PaddedTextFormField(
               onSaved: (value) => _enquiry['subject'] = value,
@@ -74,18 +74,18 @@ class EnquiryForm extends StatelessWidget {
               hintText: 'What would you like to tell us about?',
               controller: _message,
               validator: Validators.validateNotEmpty,
-              padding: const EdgeInsets.fromLTRB(0.0, 0, 0.0, 8.0),
+              padding: const EdgeInsets.only(bottom: 8.0),
             ),
             PaddedTextFormField(
               onSaved: (value) => _enquiry['message'] = value,
               controller: _content,
-              minLines: 5,
+              minLines: 4,
               validator: Validators.validateNotEmpty,
               labelText: 'What\'s on your mind?',
               hintText: 'What\'s on your mind?',
             ),
             SizedBox(
-              height: 40.0,
+              height: 36.0,
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {

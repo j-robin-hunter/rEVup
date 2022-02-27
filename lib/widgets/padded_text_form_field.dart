@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 class PaddedTextFormField extends StatelessWidget {
   final EdgeInsetsGeometry padding;
   final Function(String?)? validator;
+  final Function(String)? onChanged;
   final TextEditingController controller;
   final String? labelText;
   final FloatingLabelBehavior floatingLabelBehavior;
@@ -25,8 +26,9 @@ class PaddedTextFormField extends StatelessWidget {
     Key? key,
     required this.controller,
     this.validator,
+    this.onChanged,
     this.labelText,
-    this.padding = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+    this.padding = const EdgeInsets.only(bottom: 4.0),
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.hintText,
     this.icon,
@@ -41,6 +43,7 @@ class PaddedTextFormField extends StatelessWidget {
     return Padding(
       padding: padding,
       child: TextFormField(
+        onChanged: onChanged,
         focusNode: focusNode,
         validator: (value) => validator == null ? null : validator!(value),
         controller: controller,

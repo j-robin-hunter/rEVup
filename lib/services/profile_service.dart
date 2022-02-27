@@ -43,14 +43,15 @@ class ProfileService {
 
   Future<String?> saveProfile(Profile profile) async {
     DocumentReference<Map<String, dynamic>>? documentReference;
-    if (profile.id != null) {
+    if (profile.id.isNotEmpty) {
       profile.updated = DateTime.now();
       _getProfiles().doc(profile.id).set(profile.map);
     } else {
       if (profile.email.isNotEmpty) {
         documentReference = await _getProfiles().add(profile.map);
+        profile.setId(documentReference.id);
       }
     }
-    return documentReference != null ? documentReference.id : profile.id;
+    return profile.id;
   }
 }

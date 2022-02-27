@@ -7,17 +7,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:revup/screens/license_screen.dart';
 import 'package:revup/services/environment_service.dart';
 import 'package:revup/services/license_service.dart';
-import 'package:revup/widgets/chips_formfield.dart';
 import 'package:revup/widgets/color_picker_dialog.dart';
 import 'package:revup/widgets/error_dialog.dart';
 import 'package:revup/widgets/future_dialog.dart';
 import 'package:revup/widgets/service_dialog.dart';
 
 class AdminForm extends StatefulWidget {
-  const AdminForm({Key? key}) : super(key: key);
+  final Function callback;
+
+  const AdminForm({Key? key, required this.callback}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -27,13 +30,12 @@ class AdminForm extends StatefulWidget {
 
 class AdminFormState extends State<AdminForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final GlobalKey<ChipsInputState> _chipKey = GlobalKey();
 
   final _selectedColorController = TextEditingController();
   final Map _services = {};
 
   String? _selectedColorKey;
-  bool changed = false;
+  bool modified = false;
 
   @override
   void initState() {
@@ -43,17 +45,7 @@ class AdminFormState extends State<AdminForm> {
   @override
   void dispose() {
     _selectedColorController.dispose();
-    _services.forEach((serviceType, serviceTypeMap) {
-      TextEditingController controller = (serviceTypeMap as Map)['controller'];
-      controller.dispose();
-      serviceTypeMap.forEach((namedService, namedServiceMap) {
-        print('$namedService  $namedServiceMap');
-        (namedServiceMap as Map).forEach((field, fieldEntry) {
-          TextEditingController controller = (fieldEntry as Map)['controller'];
-          controller.dispose();
-        });
-      });
-    });
+    _clearServiceControllers();
     super.dispose();
   }
 
@@ -62,13 +54,11 @@ class AdminFormState extends State<AdminForm> {
     final LicenseService _licenseService = Provider.of<LicenseService>(context);
 
     if (_services.isEmpty) _buildServices(context);
+    String licensedFrom = _licenseService.created != null ? DateFormat("dd-MM-yyyy").format(_licenseService.created!) : 'Not configured';
 
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
-        onChanged: () {
-          //setState(() => changed = true);
-        },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,37 +69,7 @@ class AdminFormState extends State<AdminForm> {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 0.0),
-              child: Text('Licensed from: ${_licenseService.created ?? 'Not configured'}'),
-            ),
-            ChipsInput(
-              key: _chipKey,
-              width: MediaQuery.of(context).size.width,
-              enabled: true,
-              maxChips: 5,
-              separator: '\n',
-              decoration: InputDecoration(
-                alignLabelWithHint: true,
-                labelText: 'Administrators',
-                hintText: 'Administrator emails',
-                floatingLabelStyle: Theme.of(context).inputDecorationTheme.floatingLabelStyle,
-              ),
-              initialTags: const [],
-              chipTextValidator: (String value) {
-                value.contains('!');
-                return -1;
-              },
-              chipBuilder: (context, state, String tag) {
-                return InputChip(
-                  labelPadding: const EdgeInsets.only(left: 8.0, right: 3),
-                  key: ObjectKey(tag),
-                  label: Text(
-                    "# " + tag.toString(),
-                    textAlign: TextAlign.center,
-                  ),
-                  onDeleted: () => state.deleteChip(tag),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                );
-              },
+              child: Text('Licensed from: $licensedFrom'),
             ),
             const SizedBox(height: 8.0),
             _branding(context),
@@ -122,15 +82,39 @@ class AdminFormState extends State<AdminForm> {
                   //const SizedBox(width: 12),
                   Expanded(
                     child: SizedBox(
-                      height: 40.0,
+                      height: 36.0,
                       child: ElevatedButton(
-                        child: const Text('OK'),
-                        onPressed: () {
-                          _saveAdmin(context);
+                        child: Text(modified ? 'Cancel' : 'Done'),
+                        onPressed: () async {
+                          if (modified) {
+                            _clearServiceControllers();
+                            _services.clear();
+                            await _licenseService.reLoadLicense();
+                            setState(() => modified = false);
+                          } else {
+                            _setFormDone();
+                          }
                         },
                       ),
                     ),
                   ),
+                  modified
+                      ? Expanded(
+                          child: SizedBox(
+                            height: 36.0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: ElevatedButton(
+                                child: const Text('Save'),
+                                onPressed: () {
+                                  _saveAdmin(context);
+                                  setState(() => modified = false);
+                                },
+                              ),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),
@@ -148,17 +132,19 @@ class AdminFormState extends State<AdminForm> {
     _environmentServices.forEach((serviceType, serviceTypeMap) {
       String? currentServiceNameValue;
       (serviceTypeMap as Map).forEach((namedService, namedServiceMap) {
-        (namedServiceMap as Map).forEach((field, fieldEntry) {
-          Map? values = _licenseService.getServiceDefinition(serviceType.toLowerCase());
-          if (values != null) {
-            if (values.containsKey('serviceName')) {
-              currentServiceNameValue = values['serviceName'];
+        if (namedServiceMap is Map) {
+          namedServiceMap.forEach((field, fieldEntry) {
+            Map? values = _licenseService.getServiceDefinition(serviceType.toLowerCase());
+            if (values != null) {
+              if (values.containsKey('serviceName')) {
+                currentServiceNameValue = values['serviceName'];
+              }
             }
-          }
-          TextEditingController controller = TextEditingController();
-          controller.text = values?[field] ?? '';
-          (fieldEntry as Map)['controller'] = controller;
-        });
+            TextEditingController controller = TextEditingController();
+            controller.text = values?[field] ?? '';
+            (fieldEntry as Map)['controller'] = controller;
+          });
+        }
       });
       TextEditingController serviceController = TextEditingController();
       serviceController.text = currentServiceNameValue ?? '';
@@ -212,7 +198,10 @@ class AdminFormState extends State<AdminForm> {
                         content: _services[serviceType][namedService],
                       ),
                     ).then((value) {
-                      _licenseService.setService(serviceType, namedService, _services[serviceType][namedService]);
+                      if (value) {
+                        _licenseService.setService(serviceType, namedService, _services[serviceType][namedService]);
+                        setState(() => modified = true);
+                      }
                     });
                   }
                 },
@@ -270,6 +259,7 @@ class AdminFormState extends State<AdminForm> {
                           groupValue: _theme,
                           onChanged: (String? value) {
                             _licenseService.setTheme(value!);
+                            setState(() => modified = true);
                           },
                         ),
                         const Text('Light'),
@@ -278,6 +268,7 @@ class AdminFormState extends State<AdminForm> {
                           groupValue: _theme,
                           onChanged: (String? value) {
                             _licenseService.setTheme(value!);
+                            setState(() => modified = true);
                           },
                         ),
                         const Text('Dark'),
@@ -292,7 +283,8 @@ class AdminFormState extends State<AdminForm> {
                           decoration: const InputDecoration(
                             label: Text('Colours'),
                           ),
-                          items: _licenseService.getColors()
+                          items: _licenseService
+                              .getColors()
                               .map((String item) => DropdownMenuItem<String>(
                                     child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -322,7 +314,7 @@ class AdminFormState extends State<AdminForm> {
                                   ))
                               .toList(),
                           onChanged: (String? value) {
-                            Color color = _licenseService.getThemeColor(value)?? Colors.transparent;
+                            Color color = _licenseService.getThemeColor(value) ?? Colors.transparent;
                             _selectedColorKey = value;
                             _selectedColorController.text = color.value.toString();
                             //setState(() {});
@@ -404,6 +396,7 @@ class AdminFormState extends State<AdminForm> {
               Image? _image = await pickImage(ImageSource.gallery);
               if (_image != null) {
                 _licenseService.setImage(name, _image);
+                setState(() => modified = true);
               }
             },
             child: Container(
@@ -471,5 +464,32 @@ class AdminFormState extends State<AdminForm> {
     ).then((_) {
       //setState(() => changed = false);
     }); // leave settings if save is OK
+  }
+
+  void _clearServiceControllers() {
+    _services.forEach((serviceType, serviceTypeMap) {
+      TextEditingController controller = (serviceTypeMap as Map)['controller'];
+      try {
+        controller.dispose();
+      } catch (e) {
+        // Do nothing - normally will be called due to disposing already
+      }
+      serviceTypeMap.forEach((namedService, namedServiceMap) {
+        if (namedServiceMap is Map) {
+          namedServiceMap.forEach((field, fieldEntry) {
+            TextEditingController controller = (fieldEntry as Map)['controller'];
+            try {
+              controller.dispose();
+            } catch (e) {
+              // Do nothing - normally will be called due to disposing already
+            }
+          });
+        }
+      });
+    });
+  }
+
+  void _setFormDone() {
+    widget.callback(AdminStep.admin);
   }
 }

@@ -135,13 +135,10 @@ class LoginFormState extends State<LoginForm> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: Text(
-              'or',
-              style: TextStyle(
-                color: Theme.of(context).textTheme.bodyText1!.color,
-              ),
+          Text(
+            'or',
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodyText1!.color,
             ),
           ),
           PaddedTextFormField(
@@ -156,58 +153,61 @@ class LoginFormState extends State<LoginForm> {
             labelText: 'Password',
             floatingLabelBehavior: FloatingLabelBehavior.never,
           ),
-          Row(
-            children: <Widget>[
-              Checkbox(
-                value: _rememberMe,
-                onChanged: (bool? value) {
-                  setState(() {
-                    _rememberMe = value!;
-                  });
-                },
-              ),
-              Text(
-                'Remember me',
-                style: TextStyle(
-                  color: Theme.of(context).textTheme.bodyText1!.color,
+          Padding(
+            padding: const EdgeInsets.only(top: 4.0),
+            child: Row(
+              children: <Widget>[
+                Checkbox(
+                  value: _rememberMe,
+                  onChanged: (bool? value) {
+                    setState(() {
+                      _rememberMe = value!;
+                    });
+                  },
                 ),
-              ),
-              Expanded(child: Container()),
-              SizedBox(
-                height: 36.0,
-                width: 110.0,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      try {
-                        User? user = await _authService.signInWithEmailAndPassword(_email.text, _password.text, _rememberMe);
-                        if (user!.emailVerified == false) {
-                          await _authService.verifyEmailAddress(user);
+                Text(
+                  'Remember me',
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.bodyText1!.color,
+                  ),
+                ),
+                Expanded(child: Container()),
+                SizedBox(
+                  height: 36.0,
+                  width: 110.0,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        try {
+                          User? user = await _authService.signInWithEmailAndPassword(_email.text, _password.text, _rememberMe);
+                          if (user!.emailVerified == false) {
+                            await _authService.verifyEmailAddress(user);
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return _notVerifiedDialog();
+                              },
+                            );
+                          } else {
+                            Navigator.pushNamed(context, '/');
+                          }
+                        } catch (e) {
                           showDialog(
                             barrierDismissible: false,
                             context: context,
                             builder: (BuildContext context) {
-                              return _notVerifiedDialog();
+                              return _loginFailureDialog();
                             },
                           );
-                        } else {
-                          Navigator.pushNamed(context, '/');
                         }
-                      } catch (e) {
-                        showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (BuildContext context) {
-                            return _loginFailureDialog();
-                          },
-                        );
                       }
-                    }
-                  },
-                  child: const Text('Sign in'),
+                    },
+                    child: const Text('Sign in'),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           Padding(
             padding: const EdgeInsets.only(top: 8.0),

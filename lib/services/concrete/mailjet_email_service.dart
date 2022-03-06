@@ -9,16 +9,16 @@ import '../../services/email_service.dart';
 import 'package:http/http.dart' as http;
 
 class MailjetEmailService extends EmailService {
-  final String serviceName;
   final String apiKey;
   final String secretKey;
 
   MailjetEmailService({
-    required this.serviceName,
     required this.apiKey,
     required this.secretKey,
-    required serviceApiUrl
+    required serviceName,
+    required serviceApiUrl,
   }) : super(
+          serviceName: serviceName,
           serviceApiUrl: serviceApiUrl,
         );
 

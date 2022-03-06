@@ -15,19 +15,20 @@ import '../cms_service.dart';
 import 'package:http/http.dart';
 
 class ContentfulCmsService extends CmsService {
-  final String serviceName;
-  final String serviceApiUrl;
   final String spaceId;
   final String accessToken;
   final String contentType;
 
   ContentfulCmsService({
-    required this.serviceName,
-    required this.serviceApiUrl,
     required this.spaceId,
     required this.accessToken,
     required this.contentType,
-  });
+    required serviceName,
+    required serviceApiUrl,
+  }) : super(
+          serviceName: serviceName,
+          serviceApiUrl: serviceApiUrl,
+        );
 
   static CmsService fromMap(Map<String, dynamic> map) {
     return ContentfulCmsService(
@@ -56,7 +57,7 @@ class ContentfulCmsService extends CmsService {
     if (cmsContent.isEmpty) {
       String uri = '$serviceApiUrl/spaces/$spaceId/environments/master/entries?access_token=$accessToken&content_type=$contentType';
       await _getData(uri, 'fields.licensee=default');
-      await _getData(uri, 'fields.licensee=$licensee');
+     // await _getData(uri, 'fields.licensee=$licensee');
     }
     return;
   }

@@ -128,30 +128,18 @@ class AdminFormState extends State<AdminForm> {
     final Map<String, dynamic> _environmentServices = Provider.of<EnvironmentService>(context, listen: false).environment.services;
     final LicenseService _licenseService = Provider.of<LicenseService>(context);
 
-    _services.addAll(_environmentServices);
     _environmentServices.forEach((serviceType, serviceTypeMap) {
-      String? currentServiceNameValue;
+      _services[serviceType] = {};
+      _services[serviceType]['namedServices'] = serviceTypeMap;
       (serviceTypeMap as Map).forEach((namedService, namedServiceMap) {
-        if (namedServiceMap is Map) {
-          namedServiceMap.forEach((field, fieldEntry) {
-            Map? values = _licenseService.getServiceDefinition(serviceType.toLowerCase());
-            if (values != null) {
-              if (values.containsKey('serviceName')) {
-                currentServiceNameValue = values['serviceName'];
-              }
-            }
-            TextEditingController controller = TextEditingController();
-            controller.text = values?[field] ?? '';
-            (fieldEntry as Map)['controller'] = controller;
-          });
+        Map values = _licenseService.getServiceDefinition(serviceType.toLowerCase());
+        for (var key in _services[serviceType]['namedServices'][namedService].keys) {
+          _services[serviceType]['namedServices'][namedService][key]['controller'] = TextEditingController();
+          _services[serviceType]['namedServices'][namedService][key]['controller'].text = values[key] ?? '';
         }
-      });
-      TextEditingController serviceController = TextEditingController();
-      serviceController.text = currentServiceNameValue ?? '';
-      _services[serviceType].addAll({
-        'controller': serviceController,
-        'formKey': GlobalKey<FormState>(),
-        'adminRow': Row(
+        _services[serviceType]['selected'] = values['serviceName'];
+        _services[serviceType]['formKey'] = GlobalKey<FormState>();
+        _services[serviceType]['adminRow'] = Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             Expanded(
@@ -159,8 +147,8 @@ class AdminFormState extends State<AdminForm> {
                 decoration: InputDecoration(
                   label: Text('$serviceType Service'),
                 ),
-                value: currentServiceNameValue,
-                items: [..._services[serviceType].keys]
+                value: _services[serviceType]['selected'],
+                items: [..._services[serviceType]['namedServices'].keys]
                     .map(
                       (item) => DropdownMenuItem<String>(
                         child: Text(
@@ -171,8 +159,8 @@ class AdminFormState extends State<AdminForm> {
                       ),
                     )
                     .toList(),
-                onChanged: (String? value) {
-                  _services[serviceType]['controller']?.text = value ?? '';
+                onChanged: (value) {
+                  _services[serviceType]['selected'] = value ?? '';
                 },
               ),
             ),
@@ -180,7 +168,7 @@ class AdminFormState extends State<AdminForm> {
               width: 120.0,
               child: TextButton(
                 onPressed: () {
-                  String namedService = _services[serviceType]['controller']!.text;
+                  String namedService = _services[serviceType]['selected'] ?? '';
                   if (namedService.isEmpty) {
                     showDialog(
                       barrierDismissible: false,
@@ -195,11 +183,11 @@ class AdminFormState extends State<AdminForm> {
                       context: context,
                       builder: (BuildContext context) => ServiceDialog(
                         namedService: namedService,
-                        content: _services[serviceType][namedService],
+                        content: _services[serviceType]['namedServices'][namedService],
                       ),
                     ).then((value) {
                       if (value) {
-                        _licenseService.setService(serviceType, namedService, _services[serviceType][namedService]);
+                        _licenseService.setService(serviceType, namedService, _services[serviceType]['namedServices'][namedService]);
                         setState(() => modified = true);
                       }
                     });
@@ -209,8 +197,7 @@ class AdminFormState extends State<AdminForm> {
               ),
             ),
           ],
-        ),
-        //'service': definition,
+        );
       });
     });
   }

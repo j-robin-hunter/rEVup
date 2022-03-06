@@ -5,29 +5,27 @@
 //
 //************************************************************
 
-import 'package:revup/classes/email_service_exception.dart';
-import 'package:revup/services/concrete/mailjet_email_service.dart';
+import 'package:revup/classes/product_service_exception.dart';
+import 'concrete/zoho_inventory_product_service.dart';
 
-abstract class EmailService {
+abstract class ProductService {
   final String serviceName;
   final String serviceApiUrl;
 
-  EmailService({
+  ProductService({
     required this.serviceName,
     required this.serviceApiUrl,
   });
 
-  factory EmailService.fromMap(Map<String, dynamic> map) {
+  factory ProductService.fromMap(Map<String, dynamic> map) {
     if (map['serviceName'] != null) {
       switch (map['serviceName'].toLowerCase()) {
-        case 'mailjet':
-          return MailjetEmailService.fromMap(map);
+        case 'zoho inventory':
+          return ZohoInventoryProductService.fromMap(map);
       }
     }
-    throw EmailServiceException('Encountered invalid Email service definition data');
+    throw ProductServiceException('Encountered invalid Product service definition data');
   }
 
   Map<String, dynamic> get map;
-
-  Future<bool> sendEnquiryEmail(Map<String, dynamic> enquiry);
 }

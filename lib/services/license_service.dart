@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:revup/classes/get_license_name.dart';
 import 'package:revup/classes/license_exception.dart';
 import 'package:revup/models/license.dart';
+import 'package:revup/services/product_service.dart';
 import 'package:revup/services/support_service.dart';
 import 'cms_service.dart';
 import 'email_service.dart';
@@ -20,6 +21,8 @@ class LicenseService extends ChangeNotifier {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   final License _license = License();
+
+  License get license => _license;
 
   CollectionReference<Map<String, dynamic>> _getLicenses() {
     return _firebaseFirestore.collection('licenses');
@@ -138,26 +141,26 @@ class LicenseService extends ChangeNotifier {
         _license.setEmailService(EmailService.fromMap(service));
         break;
       case 'Product':
+        _license.setProductService(ProductService.fromMap(service));
         break;
       case 'Support':
+        _license.setSupportService(SupportService.fromMap(service));
         break;
     }
   }
 
-  Map? getServiceDefinition(String serviceType) {
+  Map getServiceDefinition(String serviceType) {
     switch (serviceType.toLowerCase()) {
       case 'email':
-        return _license.emailService?.map;
+        return _license.emailService?.map ?? {};
       case 'cms':
-        return _license.cmsService?.map;
+        return _license.cmsService?.map ?? {};
       case 'product':
-        return {};
-      //values = _licenseService.license.productService?.map;
+        return _license.productService?.map ?? {};
       case 'support':
-        return {};
-      //values = _licenseService.license.supportService?.map;
+        return _license.supportService?.map ?? {};
     }
-    return null;
+    return {};
   }
 
   EmailService? get emailService => _license.emailService;

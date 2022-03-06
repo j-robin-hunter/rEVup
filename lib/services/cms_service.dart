@@ -11,10 +11,15 @@ import 'package:revup/models/cms_content.dart';
 import 'concrete/contentful_cms_service.dart';
 
 abstract class CmsService {
-  String licensee = '';
+  final String serviceName;
+  final String serviceApiUrl;
+
   final Map<String, CmsContent> cmsContent = {};
 
-  CmsService();
+  CmsService({
+    required this.serviceName,
+    required this.serviceApiUrl,
+  });
 
   factory CmsService.fromMap(Map<String, dynamic> map) {
     if (map['serviceName'] != null) {

@@ -11,23 +11,47 @@ import 'package:revup/services/support_service.dart';
 import 'package:http/http.dart' as http;
 
 class ZohoDeskSupportService extends SupportService {
-  final String serviceName;
-  final String serviceApiUrl;
-  final Map oauth;
+  final String clientId;
+  final String clientSecret;
+  final String refreshToken;
+  final String redirectUri;
+  final String tokenUri;
 
   ZohoDeskSupportService({
-    required this.serviceName,
-    required this.serviceApiUrl,
-    required this.oauth,
-  }) : super();
+    required this.clientId,
+    required this.clientSecret,
+    required this.refreshToken,
+    required this.redirectUri,
+    required this.tokenUri,
+    required serviceName,
+    required serviceApiUrl,
+  }) : super(
+    serviceName: serviceName,
+    serviceApiUrl: serviceApiUrl,
+  );
 
   static SupportService fromMap(Map<String, dynamic> map) {
     return ZohoDeskSupportService(
       serviceName: map['serviceName'],
       serviceApiUrl: map['serviceApiUrl'],
-      oauth: map['oauth2'],
+      clientId: map['clientId'],
+      clientSecret: map['clientSecret'],
+      refreshToken: map['refreshToken'],
+      redirectUri: map['redirectUri'],
+      tokenUri: map['tokenUri'],
     );
   }
+
+  @override
+  Map<String, dynamic> get map => {
+    'serviceName': serviceName,
+    'serviceApiUrl': serviceApiUrl,
+    'clientId': clientId,
+    'clientSecret': clientSecret,
+    'refreshToken': refreshToken,
+    'redirectUri': redirectUri,
+    'tokenUri': tokenUri,
+  };
 
   @override
   Future<void> createSupportTicket() async {
@@ -43,13 +67,13 @@ class ZohoDeskSupportService extends SupportService {
   Future<String> _getAccessToken() async {
     try {
       http.Response response = await http.post(
-        Uri.parse(oauth['tokenUri']),
+        Uri.parse(tokenUri),
         body: {
-          'refresh_token': oauth['refresh'],
-          'client_id': oauth['id'],
-          'client_secret': oauth['secret'],
+          'refresh_token': refreshToken,
+          'client_id': clientId,
+          'client_secret': clientSecret,
           'grant_type': 'refresh_token',
-          'redirect_uri': oauth['redirectUri'],
+          'redirect_uri': redirectUri,
         },
       ).timeout(const Duration(seconds: 10));
       if (response.statusCode == 200) {

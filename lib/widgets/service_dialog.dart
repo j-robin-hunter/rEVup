@@ -75,7 +75,7 @@ class ServiceDialog extends StatelessWidget {
       ),
       child: Container(
         width: 400.0,
-        height: (content.length * 61) + 92,
+        height: (content.length * 55) + 96,
         constraints: const BoxConstraints(
           maxHeight: 600.0,
         ),
@@ -95,24 +95,27 @@ class ServiceDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 8.0),
                   ...fields,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context, false);
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.pop(context, true);
-                          }
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context, false);
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              Navigator.pop(context, true);
+                            }
+                          },
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

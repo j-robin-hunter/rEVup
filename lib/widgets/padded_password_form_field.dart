@@ -22,7 +22,7 @@ class PaddedPasswordFormField extends StatefulWidget {
     Key? key,
     required this.controller,
     this.labelText,
-    this.padding = const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+    this.padding = const EdgeInsets.only(bottom: 4.0),
     this.floatingLabelBehavior = FloatingLabelBehavior.auto,
     this.hintText,
     this.icon,
@@ -49,7 +49,6 @@ class PaddedPasswordFormFieldState extends State<PaddedPasswordFormField> {
         controller: widget.controller,
         obscureText: !_showPassword,
         decoration: InputDecoration(
-          isDense: true,
           hintText: widget.hintText,
           labelText: widget.labelText,
           floatingLabelBehavior: widget.floatingLabelBehavior,

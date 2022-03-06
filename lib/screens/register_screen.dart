@@ -6,8 +6,12 @@
 //************************************************************
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:revup/widgets/page_template.dart';
 import 'package:revup/forms/register_form.dart';
+
+import '../models/license.dart';
+import '../services/license_service.dart';
 
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -18,28 +22,29 @@ class RegisterScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: PageTemplate(
-          body: _registerScreenBody(),
+          body: _registerScreenBody(context),
           topImage: false,
         ),
       ),
     );
   }
 
-  Widget _registerScreenBody() {
+  Widget _registerScreenBody(BuildContext context) {
+    final License _license = Provider.of<LicenseService>(context).license;
     return Card(
-      elevation: 10,
+      elevation: 1,
       child: Container(
         height: 400.0,
         constraints: const BoxConstraints(
           minWidth: 400,
           maxWidth: 800,
         ),
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.all(
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(
             Radius.circular(3.0),
           ),
           image: DecorationImage(
-            image: AssetImage('lib/assets/images/earth.png'),
+            image: _license.branding.getImage('background')['image'].image,
             fit: BoxFit.cover,
           ),
         ),

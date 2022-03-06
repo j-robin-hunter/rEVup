@@ -8,12 +8,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:revup/classes/cms_service_exception.dart';
 import 'package:revup/classes/email_service_exception.dart';
-import 'package:revup/classes/license_exception.dart';
 import 'package:revup/classes/support_service_exception.dart';
 import 'package:revup/services/cms_service.dart';
 import 'package:revup/services/email_service.dart';
 import 'package:revup/services/support_service.dart';
 
+import '../services/product_service.dart';
 import 'branding.dart';
 
 class License {
@@ -24,6 +24,7 @@ class License {
   EmailService? _emailService;
   CmsService? _cmsService;
   SupportService? _supportService;
+  ProductService? _productService;
   DateTime? created;
   DateTime? _updated;
 
@@ -44,12 +45,8 @@ class License {
     try {
       _licensee = map['licensee'];
       _profileId = map['profileId'] ?? '';
+      created = map['created'] != null ? (map['created'] as Timestamp).toDate() : DateTime.now();
       if (map['updated'] != null) _updated = (map['updated'] as Timestamp).toDate();
-      if (map['created'] != null) {
-        created = (map['created'] as Timestamp).toDate();
-      } else {
-        throw LicenseException('No active license');
-      }
       if (map['branding'] != null) _branding.fromMap(map['branding']);
       try {
         setEmailService(EmailService.fromMap(map['emailService'] ?? {}));
@@ -60,7 +57,7 @@ class License {
       }
       try {
         setCmsService(CmsService.fromMap(map['cmsService'] ?? {}));
-        _cmsService!.licensee = _licensee;
+        //_cmsService!.licensee = _licensee;
       } on CmsServiceException {
         _cmsService = null;
       } catch (ex) {
@@ -92,6 +89,8 @@ class License {
 
   SupportService? get supportService => _supportService;
 
+  ProductService? get productService => _productService;
+
   DateTime? get updated => _updated;
 
   setLicensee(String value) {
@@ -116,6 +115,11 @@ class License {
 
   setSupportService(SupportService value) {
     _supportService = value;
+    _updated = DateTime.now();
+  }
+
+  setProductService(ProductService value) {
+    _productService = value;
     _updated = DateTime.now();
   }
 

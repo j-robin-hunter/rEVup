@@ -36,7 +36,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final AuthService _authService = Provider.of<AuthService>(context);
     final ProfileService _profileService = Provider.of<ProfileService>(context);
-    final LicenseService _licenseService = Provider.of<LicenseService>(context, listen: false);
+    final LicenseService _licenseService = Provider.of<LicenseService>(context);
 
     return Scaffold(
       body: SafeArea(
